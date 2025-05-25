@@ -5,4 +5,4 @@ const incomeSchema = mongoose.Schema({
     cost: {type:Number, required:true}
 })
 
-module.exports = mongoose.model("income",incomeSchema);
+module.exports = mongoose.model("Income",incomeSchema);
