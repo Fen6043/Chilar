@@ -15,6 +15,7 @@ const Budget = () => {
     const [toggleTable,setToggleTable] = useState(false)
     const [incomeTableData,setIncomeTableData] = useState<Budget[]>([])
     const [expenseTableData,setExpenseTableData] = useState<Budget[]>([])
+    const [error,setError] = useState(false)
 
     //get Income data from DB
     const getIncomedata = async() =>{
@@ -41,16 +42,24 @@ const Budget = () => {
         if (toggleTable){
             //send data to db
             await axios.post("http://localhost:5000/api/addIncome",{item:item,cost:cost})
-            .then((response)=>{console.log(response.status,response.data); setIncomeTableData([...incomeTableData,response.data])})
-            .catch((err)=>{console.log(err)})
+            .then((response)=>{
+                console.log(response.status,response.data); 
+                setIncomeTableData([...incomeTableData,response.data]);
+                setError(false)
+            })
+            .catch((err)=>{console.log(err);setError(true)})
 
             console.log("submited",incomeTableData)
         }
         else{
             //send data to db
             await axios.post("http://localhost:5000/api/addExpense",{item:item,cost:cost})
-            .then((response)=>{console.log(response.status,response.data); setExpenseTableData([...expenseTableData,response.data])})
-            .catch((err)=>{console.log(err)})
+            .then((response)=>{
+                console.log(response.status,response.data); 
+                setExpenseTableData([...expenseTableData,response.data]);
+                setError(false)
+            })
+            .catch((err)=>{console.log(err);setError(true)})
 
             console.log("submited",expenseTableData)
         }
@@ -94,7 +103,7 @@ const Budget = () => {
     <>
     <Toolbar></Toolbar>
     <div className=' w-full items-center justify-center flex'>
-        <button className={`p-2 m-2 w-10 rounded-full text-2xl cursor-pointer ${toggleTable ? 'bg-emerald-600':'bg-rose-600'}`} onClick={() => {setToggleTable(!toggleTable)}}>
+        <button className={`m-2 w-12 h-10 rounded-full text-2xl cursor-pointer ${toggleTable ? 'bg-emerald-600':'bg-rose-600'}`} onClick={() => {setToggleTable(!toggleTable)}}>
             {toggleTable ? "+":"-"}
         </button>
         <form className=' items-center justify-center grid grid-cols-3' onSubmit={(e) => formsubmit(e)}>
@@ -103,8 +112,9 @@ const Budget = () => {
             <button type='submit' className='px-4 py-2 m-2 bg-amber-500 rounded-full cursor-pointer hover:bg-amber-700 font-bold'>Submit</button>
         </form>
     </div>
+    {error && <div className= ' text-red-500 flex justify-center mb-2 w-3/4'>Error Occured. Try again later</div>}
 
-    <div className='grid grid-cols-2'>
+    <div className='grid grid-cols-2 mt-10'>
         <div className=' mx-2 p-2 border border-emerald-500 w-fit'><b>Total Income: {sumIncome()} </b></div>
         <div className=' mx-2 p-2 border border-rose-500 w-fit'><b>Total Expense:{sumExpense()} </b></div>
     </div>

@@ -1,5 +1,6 @@
 'use client'
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 function Toolbar(){
@@ -13,7 +14,9 @@ function Toolbar(){
             </div>
             <div>
                 {pathname !== "/budget-page" && 
-                <a href="/budget-page" className="bg-emerald-600 rounded-2xl m-1 mr-4 p-1 px-4 font-mono select-none">Budget</a>}
+                <Link href="/budget-page" className="bg-emerald-600 rounded-2xl m-1 mr-2 p-1 px-4 font-mono select-none">Budget</Link>}
+                {pathname !== "/report-page" && 
+                <Link href="/report-page" className="bg-blue-600 rounded-2xl m-1 mr-2 p-1 px-4 font-mono select-none">Report</Link>}
             </div>
         </div>
     )
