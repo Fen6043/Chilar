@@ -1,5 +1,5 @@
 'use client'
-import React, { FormEvent, useEffect, useState } from 'react'
+import React, { FormEvent, useEffect, useRef, useState } from 'react'
 import Toolbar from '../components/Toolbar'
 import axios from 'axios';
 
@@ -16,6 +16,9 @@ const Budget = () => {
     const [incomeTableData,setIncomeTableData] = useState<Budget[]>([])
     const [expenseTableData,setExpenseTableData] = useState<Budget[]>([])
     const [error,setError] = useState(false)
+    const timeRef = useRef<NodeJS.Timeout>(null)
+    const [style,setStyle] = useState(false)
+    const keyRef = useRef("")
 
     //get Income data from DB
     const getIncomedata = async() =>{
@@ -26,7 +29,7 @@ const Budget = () => {
 
     //get Expense data from DB
     const getExpensedata = async() =>{
-        await axios.get("http://localhost:5000/api/getExpense")
+        await axios.get("http://localhost:5000/api/getFixedExpense")
         .then((response) => {setExpenseTableData(response.data);console.log(response.data)})
         .catch((err)=>{console.log("error occured while getting expense:",err)})
     }
@@ -74,6 +77,7 @@ const Budget = () => {
 
         tempdata.splice(index,1)
         setExpenseTableData(tempdata)
+        setStyle(false)
     }
 
     const removeIncome = async(index:number,id:string) => {
@@ -85,6 +89,31 @@ const Budget = () => {
 
         tempdata.splice(index,1)
         setIncomeTableData(tempdata)
+        setStyle(false)
+    }
+
+    const removeTimer = (type:string,index:number,id:string) => {
+        console.log("inside remove timer")
+        timeRef.current = null;
+        if(type === "Expense"){
+            setStyle(true)
+            keyRef.current = "E"+index
+            timeRef.current = setTimeout(() => removeExpense(index,id),500)
+        }
+        else{
+            setStyle(true)
+            keyRef.current = "I"+index
+            timeRef.current = setTimeout(() => removeIncome(index,id),500)
+        }
+            
+    }
+
+    const removeTimerCancel = () => {
+        if(timeRef.current){
+            setStyle(false)
+            keyRef.current = ""
+            clearTimeout(timeRef.current)
+        }
     }
 
     const sumIncome = () => {
@@ -121,7 +150,7 @@ const Budget = () => {
 
     <div className='grid grid-cols-2'>
         <div className=' m-2'>
-            <table className=' border-2 border-emerald-500 table-auto w-full'>
+            <table className=' select-none border-2 border-emerald-500 table-auto w-full'>
                 <thead className=' border-2 border-emerald-500 '>
                     <tr>
                         <th className='p-2 w-1/2'>Income Item</th>
@@ -131,7 +160,12 @@ const Budget = () => {
                 <tbody>
                     {incomeTableData.map((row,index) => {
                         return(
-                        <tr key={index} className=' hover:bg-emerald-600' onClick={()=>removeIncome(index,row._id)}>
+                        <tr key={"I"+index} className={` hover:bg-emerald-600 ${(style && keyRef.current === "I"+index)?"hover:bg-emerald-800 bg-emerald-800":""}`} 
+                        onMouseDown={()=>removeTimer("Income",index,row._id)} 
+                        onTouchStart={()=>removeTimer("Income",index,row._id)}
+                        onTouchEnd={removeTimerCancel}
+                        onMouseUp={removeTimerCancel} 
+                        onMouseLeave={removeTimerCancel}>
                             <td className='p-2 w-1/2 text-center'>{row.item}</td>
                             <td className='p-2 w-1/2 text-center'>{row.cost}</td>
                         </tr>)
@@ -141,7 +175,7 @@ const Budget = () => {
         </div>
 
         <div className=' m-2'>
-            <table className=' border-2 border-rose-500 table-auto w-full'>
+            <table className=' select-none border-2 border-rose-500 table-auto w-full'>
                 <thead className=' border-2 border-rose-500 '>
                     <tr>
                         <th className='p-2 w-1/2'>Expense Item</th>
@@ -151,7 +185,12 @@ const Budget = () => {
                 <tbody>
                     {expenseTableData.map((row,index) => {
                         return(
-                        <tr key={index} className=' hover:bg-rose-600' onClick={()=>removeExpense(index,row._id)}>
+                        <tr key={"E"+index} className={` hover:bg-rose-600 ${(style && keyRef.current === "E"+index)?"hover:bg-rose-800 bg-rose-800":""}`} 
+                        onMouseDown={()=>removeTimer("Expense",index,row._id)} 
+                        onTouchStart={()=>removeTimer("Expense",index,row._id)}
+                        onTouchEnd={removeTimerCancel}
+                        onMouseUp={removeTimerCancel} 
+                        onMouseLeave={removeTimerCancel}>
                             <td className='p-2 w-1/2 text-center'>{row.item}</td>
                             <td className='p-2 w-1/2 text-center'>{row.cost}</td>
                         </tr>)

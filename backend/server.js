@@ -25,7 +25,7 @@ app.get("/api/getIncome",async(req,res) => {
     }
 })
 
-app.get("/api/getExpense",async(req,res) => {
+app.get("/api/getFixedExpense",async(req,res) => {
     try {
         const expense = await FixedExpense.find();
         res.json(expense)
@@ -34,7 +34,7 @@ app.get("/api/getExpense",async(req,res) => {
     }
 })
 
-app.get("/api/getVariableExpense/:num", async(req,res) => {
+app.get("/api/getVariableExpenseList/:num", async(req,res) => {
     try {
         const num =parseInt(req.params.num)
         let varExpense
@@ -50,7 +50,55 @@ app.get("/api/getVariableExpense/:num", async(req,res) => {
     }
 })
 
-app.get("/api/getBudget",async(req,res) => {
+app.get("/api/getVariableExpense/:date", async(req,res) => {
+    try {
+        const today = new Date(req.params.date)
+        //const stoday = new Date(today.getFullYear(),today.getMonth(),today.getDate())
+        //console.log(today,req.params.date)
+        const firstday = new Date(today.getFullYear(),today.getMonth(),1)
+        const lastday = new Date(today.getFullYear(),today.getMonth()+1,0,23, 59, 59, 999)
+        const monthlyExpense = await VariableExpense.aggregate([
+            {
+                $match: {
+                    date: {
+                        $gte:firstday,
+                        $lte:lastday
+                    }
+                }
+            }, 
+            {
+                $group: {
+                    _id:null,
+                    totalExpense: {$sum:"$cost"}
+                }
+            }
+        ])
+
+        const dailyExpense = await VariableExpense.aggregate([
+            {
+                $match:{
+                    date:{
+                        $eq:today
+                    }
+                }
+            },
+            {
+                $group:{
+                    _id:null,
+                    totalExpense: {$sum:"$cost"}
+                }
+            }
+        ])
+        const sendDailyExpense = dailyExpense[0]?.totalExpense || 0
+        const sendMonthlyExpense = monthlyExpense[0]?.totalExpense || 0
+        res.json({dailyVariableExpense:sendDailyExpense,monthlyVariableExpense:sendMonthlyExpense})
+    } catch (error) {
+        console.log("error ocuured while getting expense",error)
+        res.status(500).json(error)
+    }
+})
+
+app.get("/api/getFixedBudget",async(req,res) => {
     try {
         const incomeSum = await Income.aggregate([
           {
@@ -70,11 +118,12 @@ app.get("/api/getBudget",async(req,res) => {
             }
         ])
 
-        // console.log(incomeSum,expenseSum)
+        //console.log(incomeSum,expenseSum)
         const totalIncome = incomeSum[0]?.totalCost || 0
         const totalExpense = expenseSum[0]?.totalCost || 0
-        res.json({totalBuget: (totalIncome - totalExpense)})
+        res.json({totalfixedBudget: (totalIncome - totalExpense)})
     } catch (error) {
+        console.log(error)
         res.status(500).json(error)
     }
 })
@@ -103,9 +152,9 @@ app.post("/api/addExpense",async(req,res) => {
 
 app.post("/api/addvariableExpense", async(req,res) => {
     try {
-        const newVarExpense = new VariableExpense({item:req.body.item, cost:req.body.cost, date:new Date(req.body.date)})
+        const newVarExpense = new VariableExpense({item:req.body.item, cost:req.body.cost, date:req.body.date})
         await newVarExpense.save();
-        res.status(200).json({text:"Saved variableExpense successfully"})
+        res.status(200).json(newVarExpense)
     } catch (error) {
         res.status(500).json(error)
     }
@@ -123,6 +172,17 @@ app.delete("/api/deleteIncome/:id", async(req,res)=>{
 app.delete("/api/deleteExpense/:id", async(req,res)=>{
     try {
         await FixedExpense.findByIdAndDelete(req.params.id)
+        res.status(200).json("successfully deleted")
+    } catch (error) {
+        res.status(500).json(error)
+    }
+})
+
+app.delete("/api/deleteLatestVariableExpense", async(req,res)=>{
+    try {
+        await VariableExpense.findOneAndDelete({},{
+            sort: { createdAt: -1}
+        })
         res.status(200).json("successfully deleted")
     } catch (error) {
         res.status(500).json(error)
