@@ -64,9 +64,10 @@ const Homepage = () => {
   }
 
   useEffect(() => {
+    console.log("start")
     getBudgetorExpense()
     getExpenseDetail()
-  },[])
+  })
 
   const addToExpense = async(event:React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
