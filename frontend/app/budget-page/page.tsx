@@ -18,25 +18,29 @@ const Budget = () => {
     const [error,setError] = useState(false)
     const timeRef = useRef<NodeJS.Timeout>(null)
     const [style,setStyle] = useState(false)
+    const [isBudgetNotSet,setisBudgetNotSet] = useState(false)
     const keyRef = useRef("")
+    const sendBudgetData = useRef(false);
 
     //get Income data from DB
     const getIncomedata = async() =>{
         await axios.get("http://localhost:5000/api/getIncome")
-        .then((response) => {setIncomeTableData(response.data);console.log(response.data)})
+        .then((response) => {setIncomeTableData(response.data);})
         .catch((err)=>{console.log("error occured while getting income:",err)})
     }
 
     //get Expense data from DB
     const getExpensedata = async() =>{
         await axios.get("http://localhost:5000/api/getFixedExpense")
-        .then((response) => {setExpenseTableData(response.data);console.log(response.data)})
+        .then((response) => {setExpenseTableData(response.data);})
         .catch((err)=>{console.log("error occured while getting expense:",err)})
     }
 
     useEffect(()=>{
         getIncomedata()
         getExpensedata()
+        const getItem = localStorage.getItem("isBudgetSet")
+        setisBudgetNotSet(!!getItem)
     },[])
 
     //submit form
@@ -46,26 +50,27 @@ const Budget = () => {
             //send data to db
             await axios.post("http://localhost:5000/api/addIncome",{item:item,cost:cost})
             .then((response)=>{
-                console.log(response.status,response.data); 
+                //console.log(response.status,response.data); 
                 setIncomeTableData([...incomeTableData,response.data]);
                 setError(false)
             })
             .catch((err)=>{console.log(err);setError(true)})
 
-            console.log("submited",incomeTableData)
+            //console.log("submited",incomeTableData)
         }
         else{
             //send data to db
             await axios.post("http://localhost:5000/api/addExpense",{item:item,cost:cost})
             .then((response)=>{
-                console.log(response.status,response.data); 
+                //console.log(response.status,response.data); 
                 setExpenseTableData([...expenseTableData,response.data]);
                 setError(false)
             })
             .catch((err)=>{console.log(err);setError(true)})
 
-            console.log("submited",expenseTableData)
+            //console.log("submited",expenseTableData)
         }
+        sendBudgetData.current = true
     }
 
     const removeExpense = async(index:number,id:string) => {
@@ -78,6 +83,7 @@ const Budget = () => {
         tempdata.splice(index,1)
         setExpenseTableData(tempdata)
         setStyle(false)
+        sendBudgetData.current = true
     }
 
     const removeIncome = async(index:number,id:string) => {
@@ -90,10 +96,11 @@ const Budget = () => {
         tempdata.splice(index,1)
         setIncomeTableData(tempdata)
         setStyle(false)
+        sendBudgetData.current = true
     }
 
     const removeTimer = (type:string,index:number,id:string) => {
-        console.log("inside remove timer")
+        //console.log("inside remove timer")
         timeRef.current = null;
         if(type === "Expense"){
             setStyle(true)
@@ -128,6 +135,26 @@ const Budget = () => {
         return sum
     }
 
+    const verifyBudget = () => {
+        const today = new Date()
+        const stoday = today.toDateString()
+        const setMonth = stoday.split(" ")[1] + " " + stoday.split(" ")[3]
+        const totalIncome = sumIncome()
+        const totalExpense = sumExpense()
+        const sendData = {income:totalIncome,expense:totalExpense,setMonth:setMonth}
+        axios.post("http://localhost:5000/api/BudgetSetForTheMonth",sendData)
+        .then((res) => {console.log(res);localStorage.removeItem("isBudgetSet")})
+        .catch((err) => {console.log(err)})
+    }
+
+    useEffect(()=>{
+        //console.log(sendBudgetData.current)
+        if(sendBudgetData.current){
+            verifyBudget()
+            sendBudgetData.current = false
+        }
+    },[incomeTableData,expenseTableData])
+
   return (
     <>
     <Toolbar></Toolbar>
@@ -141,6 +168,8 @@ const Budget = () => {
             <button type='submit' className='px-4 py-2 m-2 bg-amber-500 rounded-full cursor-pointer hover:bg-amber-700 font-bold'>Submit</button>
         </form>
     </div>
+    {isBudgetNotSet && <button className='bg-amber-600 hover:bg-emerald-700 rounded-es-lg transition-all duration-300 animate-bounce hover:animate-none font-mono p-2 mx-2 cursor-pointer'
+    onClick={()=>{verifyBudget();setisBudgetNotSet(false)}}>Verify</button>}
     {error && <div className= ' text-red-500 flex justify-center mb-2 w-3/4'>Error Occured. Try again later</div>}
 
     <div className='grid grid-cols-2 mt-10'>
@@ -160,7 +189,7 @@ const Budget = () => {
                 <tbody>
                     {incomeTableData.map((row,index) => {
                         return(
-                        <tr key={"I"+index} className={` hover:bg-emerald-600 ${(style && keyRef.current === "I"+index)?"hover:bg-emerald-800 bg-emerald-800":""}`} 
+                        <tr key={"I"+index} className={` hover:bg-emerald-600 ${(style && keyRef.current === "I"+index)?"transition-colors duration-500 hover:bg-emerald-800 bg-emerald-800":""}`} 
                         onMouseDown={()=>removeTimer("Income",index,row._id)} 
                         onTouchStart={()=>removeTimer("Income",index,row._id)}
                         onTouchEnd={removeTimerCancel}
@@ -185,7 +214,7 @@ const Budget = () => {
                 <tbody>
                     {expenseTableData.map((row,index) => {
                         return(
-                        <tr key={"E"+index} className={` hover:bg-rose-600 ${(style && keyRef.current === "E"+index)?"hover:bg-rose-800 bg-rose-800":""}`} 
+                        <tr key={"E"+index} className={`hover:bg-rose-600 ${(style && keyRef.current === "E"+index)?"transition-colors duration-500 hover:bg-rose-800 bg-rose-800":""}`} 
                         onMouseDown={()=>removeTimer("Expense",index,row._id)} 
                         onTouchStart={()=>removeTimer("Expense",index,row._id)}
                         onTouchEnd={removeTimerCancel}

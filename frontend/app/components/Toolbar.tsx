@@ -14,9 +14,9 @@ function Toolbar(){
             </div>
             <div>
                 {pathname !== "/budget-page" && 
-                <Link href="/budget-page" className="bg-emerald-600 rounded-2xl m-1 mr-2 p-1 px-4 font-mono select-none">Budget</Link>}
+                <Link href="/budget-page" className="bg-emerald-600 rounded-2xl mr-3 py-1 px-4 font-mono select-none transition-all duration-150 hover:py-2">Budget</Link>}
                 {pathname !== "/report-page" && 
-                <Link href="/report-page" className="bg-blue-600 rounded-2xl m-1 mr-2 p-1 px-4 font-mono select-none">Report</Link>}
+                <Link href="/report-page" className="bg-blue-600 rounded-2xl mr-2 p-1 px-4 font-mono select-none transition-all duration-150 hover:py-2">Report</Link>}
             </div>
         </div>
     )

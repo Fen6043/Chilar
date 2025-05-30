@@ -1,6 +1,9 @@
 "use client"
 import axios from 'axios';
+import Image from "next/image";
 import React, { useEffect, useState } from 'react'
+import Toolbar from './Toolbar';
+import { useRouter } from 'next/navigation';
 
 const Homepage = () => {
   interface Expense {
@@ -10,6 +13,7 @@ const Homepage = () => {
     date:string;
   }
 
+  const router = useRouter()
   const [activeTab,setActiveTab] = useState<string>("Daily")
   const [monthlyFixedBudget,setMonthlyFixedBudget] = useState(0);
   const [dailyFixedBudget,setDailyFixedBudget] = useState(0);
@@ -20,13 +24,11 @@ const Homepage = () => {
   const today = new Date();
   today.setHours(0,0,0,0)
   const lastday = new Date(today.getFullYear(),today.getMonth()+1,0,23,59,59,999)
+  const [modal,setModal] = useState(false)
 
   const formatDate = (date: Date) => {
-    const tdate = date.getDate()
-    const tmonth = date.getMonth()
-    const tyear = date.getFullYear()
-
-    return `${tyear}-0${tmonth+1}-${tdate}`
+    const month = (date.getMonth() + 1).toString().padStart(2,'0')
+    return `${date.getFullYear()}-${month}-${date.getDate()}`
   }
 
   const [sdate, setSDate] = useState(formatDate(today))
@@ -38,42 +40,60 @@ const Homepage = () => {
     .catch((error)=>{console.log(error)})
   }
 
-  const getBudgetorExpense = async() => {
-    let monthlyFixedBudget = 0; //Total income - Monthly Fixed expense
+  const getBudgetorExpense = async () => {
+    let monthlyFixedBudget = 0;//Total income - Monthly Fixed expense
     let dailyFixedBudget = 0;
     let monthlyVariableExpense = 0;
     let dailyVariableExpense = 0;
-    await axios.get("http://localhost:5000/api/getFixedBudget")
-    .then((response) => {monthlyFixedBudget = response.data.totalfixedBudget;})
-    .catch((err) => {console.log("Error occured while fetching Budget",err)})
 
-    await axios.get(`http://localhost:5000/api/getVariableExpense/${today.toUTCString()}`)
-    .then((response) => {
-      //console.log(response.data);
-      setDailyVariableExpense(response.data.dailyVariableExpense);
-      setMontlyVariableExpense(response.data.monthlyVariableExpense);
-      monthlyVariableExpense = response.data.monthlyVariableExpense;
-      dailyVariableExpense = response.data.dailyVariableExpense;
-    })
-    .catch((err) => {console.log("error occured while getting expense",err)})
+    try {
+      const dateString = today.toDateString()
+      const response = await axios.get(`http://localhost:5000/api/checkifBudgetSet/${dateString.split(" ")[1]} ${dateString.split(" ")[3]}`);
+      //console.log(dateString.split(" ")[1],dateString.split(" ")[3])
+      const isBudgetSet = response.data;
 
-    dailyFixedBudget = (monthlyFixedBudget-monthlyVariableExpense+dailyVariableExpense) / (lastday.getDate()-today.getDate()+1)
-    //console.log("daily fixed budget set to :",dailyFixedBudget)
-    setDailyFixedBudget(dailyFixedBudget)
-    setMonthlyFixedBudget(monthlyFixedBudget)
+      setModal(!isBudgetSet);
+
+      if (!isBudgetSet) {
+        localStorage.setItem("isBudgetSet","No")
+        return;
+      }
+
+      // Get fixed budget
+      const fixedBudgetResponse = await axios.get("http://localhost:5000/api/getFixedBudget");
+      monthlyFixedBudget = fixedBudgetResponse.data?.totalfixedBudget;
+
+      // Get variable expense
+      const variableExpenseResponse = await axios.get(`http://localhost:5000/api/getVariableExpense/${today.toUTCString()}`);
+      dailyVariableExpense = variableExpenseResponse.data?.dailyVariableExpense;
+      monthlyVariableExpense = variableExpenseResponse.data?.monthlyVariableExpense;
+
+      setDailyVariableExpense(dailyVariableExpense);
+      setMontlyVariableExpense(monthlyVariableExpense);
+
+      const daysRemaining = lastday.getDate() - today.getDate() + 1;
+      dailyFixedBudget = (monthlyFixedBudget - monthlyVariableExpense + dailyVariableExpense) / daysRemaining;
+
+      setDailyFixedBudget(dailyFixedBudget);
+      setMonthlyFixedBudget(monthlyFixedBudget);
+    } catch (error) {
+      console.error("An error occurred in getBudgetorExpense:", error);
+    }
   }
 
   useEffect(() => {
     console.log("start")
     getBudgetorExpense()
     getExpenseDetail()
-  })
+  },[])
 
   const addToExpense = async(event:React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const sendlocalDate = new Date(parseInt(sdate.split("-")[0]),parseInt(sdate.split("-")[1])-1,parseInt(sdate.split("-")[2]))
+    const localDate = new Date(parseInt(sdate.split("-")[0]),parseInt(sdate.split("-")[1])-1,parseInt(sdate.split("-")[2]))
+    //const testTime = new Date("2025-05-27")
+    //console.log("testtime - ",testTime.toISOString())
     //console.log(sendlocalDate)
-    const temp = {item:item,cost:cost,date:sendlocalDate}
+    const temp = {item:item,cost:cost,date:localDate.toUTCString()}
     await axios.post("http://localhost:5000/api/addvariableExpense",temp)
     .then((response) => {console.log(response.data)})
     .catch((error) => {console.log("error occured while posting variableExpense",error)})
@@ -105,6 +125,8 @@ const Homepage = () => {
   }
   
   return (
+    <>
+    <Toolbar/>
     <div className='flex flex-col items-center'>
       <div className=' w-full flex items-center justify-center'>
         <div className=' flex'>
@@ -138,6 +160,7 @@ const Homepage = () => {
               <tbody>
                 {expenseDetail.map((expense,index) => {
                   const localdate = new Date(expense.date)
+                  // console.log("test")
                   return(
                   <tr key={index} className='text-center'>
                     <td className=" px-6 py-2">{expense.item}</td>
@@ -157,6 +180,17 @@ const Homepage = () => {
         </div>
       </div>
     </div>
+    
+    
+    {modal && <div className=' bg-stone-900 opacity-80 fixed top-0 left-0 w-screen h-screen z-20'/>}
+    {modal && 
+      <div className=' w-1/2 h-1/2 bg-green-800 opacity-100 z-30 fixed top-1/4 left-1/4 border border-amber-600 rounded-2xl flex flex-col justify-between items-center'>
+        <Image src="/assets/Logo.png" alt="PropLogo" width={100} height={100}/>
+        <p className='text-amber-500 text-2xl font-mono p-4 m-1'><b className='text-amber-50'>Hi,</b> could you please verify the budget that should be set for this month</p>
+        <button className='bg-amber-600 p-2 relative bottom-4 rounded-2xl font-mono font-bold cursor-pointer' onClick={() => {router.push("/budget-page")}}>Take me there</button>
+      </div>
+    }
+    </>
   )
 }
 

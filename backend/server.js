@@ -3,11 +3,13 @@ const cors = require("cors")
 const mongoose = require("mongoose")
 const app = express()
 /** @type {import('mongoose').Model<any>} */
-const Income = require("./income")
+const Income = require("./mongoDB/income")
 /** @type {import('mongoose').Model<any>} */
-const FixedExpense = require("./fixedExpense")
+const FixedExpense = require("./mongoDB/fixedExpense")
 /** @type {import('mongoose').Model<any>} */
-const VariableExpense = require("./variableExpense")
+const VariableExpense = require("./mongoDB/variableExpense")
+/** @type {import('mongoose').Model<any>} */
+const Budget = require("./mongoDB/budget")
 
 app.use(express.json())
 app.use(cors())
@@ -124,6 +126,63 @@ app.get("/api/getFixedBudget",async(req,res) => {
         res.json({totalfixedBudget: (totalIncome - totalExpense)})
     } catch (error) {
         console.log(error)
+        res.status(500).json(error)
+    }
+})
+
+app.get("/api/getVariableExpenseListByDate/:startDate/:endDate",async(req,res)=>{
+    try {
+        const startDate = new Date(req.params.startDate)
+        const endDate = new Date(req.params.endDate)
+
+        const variableExpenseList = await VariableExpense.aggregate([
+            {
+                $match:{
+                    date:{
+                        $gte:startDate,
+                        $lte:endDate
+                    }
+                }
+            },
+            {
+                $sort:{
+                    date: -1
+                }
+            }
+        ])
+
+        res.status(200).json(variableExpenseList)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json(error)
+    }
+})
+
+app.get("/api/checkifBudgetSet/:setMonth",async(req,res) => {
+    //console.log(req.params.setMonth)
+
+    const budgetDetail = await Budget.exists({
+        setMonth:{
+            $eq:req.params.setMonth
+        }
+    })
+
+    const sendBack = !!budgetDetail
+    res.send(sendBack)
+})
+
+app.post("/api/BudgetSetForTheMonth",async(req,res) => {
+    try {
+        const setdata = {income:parseFloat(req.body.income), expense:parseFloat(req.body.expense), monthlyBudget:parseFloat(req.body.income) - parseFloat(req.body.expense),setMonth:req.body.setMonth}
+        
+        await Budget.findOneAndUpdate({
+            setMonth:{
+            $eq:req.body.setMonth
+        }
+        },setdata,{upsert:true}) // upsert is for adding if no data pass filter condition 
+
+        res.status(200).send("Successfully added Budget")
+    } catch (error) {
         res.status(500).json(error)
     }
 })
