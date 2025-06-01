@@ -8,7 +8,7 @@ function Toolbar(){
     const pathname = usePathname();
     return(
         <div className=" bg-amber-600 flex justify-between items-center">
-            <div className="flex" onClick={() => {route.push("/")}}>
+            <div className="flex cursor-pointer" onClick={() => {route.push("/")}}>
                 <Image src="/assets/Logo.png" className="ml-1" alt="Logo" width={40} height={24}/>
                 <h1 className="m-1 p-1 select-none"><b>Chillar</b></h1>
             </div>

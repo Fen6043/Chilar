@@ -66,18 +66,16 @@ const Report = () => {
           <div className=' flex justify-center p-2 mb-2 select-none'>
             <form className=' flex flex-col sm:flex-row' onSubmit={(e) => {e.preventDefault();getExpenseDetail()}}>
               <label htmlFor="from" className='p-2 font-mono'>From:</label>
-              <input type='date' id='from' className=' border border-amber-500 rounded-xl p-2 mr-2' 
-                style={{colorScheme: 'dark'}}
+              <input type='date' id='from' className=' border border-amber-500 rounded-xl p-2 mr-2'
                 onChange={(e) => {setDate(e,"StartDate")}} required/>
               <label htmlFor='to' className='p-2 font-mono'>To:</label>
-              <input type='date' id='to' className=' border border-amber-500 rounded-xl p-2 mr-2' 
-                style={{colorScheme: 'dark'}}
+              <input type='date' id='to' className=' border border-amber-500 rounded-xl p-2 mr-2'
                 onChange={(e) => {setDate(e,"EndDate")}} required/>
               <button type='submit' className='bg-cyan-700 hover:bg-cyan-900 py-2 px-3 mt-4 sm:mt-0 rounded-xl cursor-pointer'>Search</button>
             </form>
           </div>
           <div className=' grid grid-cols-3'>
-            <div className=' col-span-3 sm:col-span-2 border'>
+            <div className=' col-span-3 sm:col-span-2 border' style={{backgroundColor:'var(--background)'}}>
               {expenseDetail.map((expense,index) => {
                   const localdate = new Date(expense.date)
                   const month = localdate.toDateString().split(" ")[1]

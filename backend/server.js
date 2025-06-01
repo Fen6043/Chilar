@@ -11,10 +11,11 @@ const VariableExpense = require("./mongoDB/variableExpense")
 /** @type {import('mongoose').Model<any>} */
 const Budget = require("./mongoDB/budget")
 
+require("dotenv").config()
 app.use(express.json())
 app.use(cors())
 
-mongoose.connect("mongodb://localhost:27017/chillar")
+mongoose.connect(process.env.MONGO_URI)
 .then(()=>{console.log("chillar db connected")})
 .catch((err)=>{console.log("chillar db not connected, error:",err)})
 

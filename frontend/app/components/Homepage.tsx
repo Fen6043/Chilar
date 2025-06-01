@@ -4,6 +4,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from 'react'
 import Toolbar from './Toolbar';
 import { useRouter } from 'next/navigation';
+import CircularProgress from './CircularProgress';
 
 const Homepage = () => {
   interface Expense {
@@ -131,22 +132,27 @@ const Homepage = () => {
       <div className=' w-full flex items-center justify-center'>
         <div className=' flex'>
           <div className={`absolute rounded-2xl m-2 bg-amber-500 w-[120px] h-[44px] z-0 border-2 transition-transform duration-200 ${activeTab === "Daily"?" translate-x-0":" translate-x-[136px]"}`}/>
-          <button className=' p-2 px-4 rounded-2xl m-2 min-w-[120px] text-center z-10 border-2 cursor-pointer font-mono' onClick={()=>{setActiveTab("Daily")}}>Daily</button>
-          <button className=' p-2 px-4 rounded-2xl m-2 min-w-[120px] text-center z-20 border-2 cursor-pointer font-mono' onClick={()=>{setActiveTab("Monthly")}}>Monthly</button>
+          <button className=' p-2 px-4 rounded-2xl m-2 min-w-[120px] h-[44px] text-center z-10 border-2 cursor-pointer font-mono' onClick={()=>{setActiveTab("Daily")}}>Daily</button>
+          <button className=' p-2 px-4 rounded-2xl m-2 min-w-[120px] h-[44px] text-center z-10 border-2 cursor-pointer font-mono' onClick={()=>{setActiveTab("Monthly")}}>Monthly</button>
         </div>
       </div>
 
       {/* Budget Circle */}
-      <div className={`my-2 w-[300px] h-[300px] rounded-full flex justify-center items-center font-mono font-bold ${(activeTab === "Daily" && (dailyFixedBudget-dailyVariableExpense)>=0) || (activeTab === "Monthly" && (monthlyFixedBudget-monthlyVariableExpense)>=0)?'bg-emerald-600':'bg-rose-600'}`}>
+      {/* <div className={`my-2 w-[300px] h-[300px] rounded-full flex justify-center items-center font-mono font-bold transition-colors duration-1000 ${(activeTab === "Daily" && (dailyFixedBudget-dailyVariableExpense)>=0) || (activeTab === "Monthly" && (monthlyFixedBudget-monthlyVariableExpense)>=0)?'bg-emerald-700':'bg-rose-700'}`}>
         {(activeTab === "Daily")?Math.floor(dailyFixedBudget-dailyVariableExpense):monthlyFixedBudget-monthlyVariableExpense}
-      </div>
+      </div> */}
+      {
+        (activeTab === "Daily")?
+        <CircularProgress value={parseFloat((((dailyFixedBudget - dailyVariableExpense)/dailyFixedBudget)*100).toFixed(2)) || 0} size ={300} remaining={dailyFixedBudget-dailyVariableExpense} outoff={dailyFixedBudget}/>:
+        <CircularProgress value={parseFloat((((monthlyFixedBudget - monthlyVariableExpense)/monthlyFixedBudget)*100).toFixed(2)) || 0} size ={300} remaining={monthlyFixedBudget-monthlyVariableExpense} outoff={monthlyFixedBudget}/>
+      }
       
       <div className=' w-full items-center justify-center flex'>
-        <div className=' border border-amber-500 mt-6 rounded-xl'>
+        <div className=' border border-amber-500 mt-6 p-1 rounded-xl' style={{backgroundColor: 'var(--background)'}}>
           <form className=' justify-center grid grid-cols-3 gap-x-2' onSubmit={(e) => addToExpense(e)}>
             <input className=' px-4 py-2 m-2 border border-emerald-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-700' onChange={(e)=>{setItem(e.target.value)}} placeholder='Item' required/>
-            <input type='number' className=' px-4 py-2 m-2 border border-emerald-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-700' onChange={(e)=>{setCost(Number(e.target.value))}} placeholder='Cost'/>
-            <input type='date' value={sdate} className=' px-4 py-2 m-2 border border-emerald-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-700' style={{ colorScheme: "dark" }}
+            <input type='number' step="any" className=' px-4 py-2 m-2 border border-emerald-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-700' onChange={(e)=>{setCost(Number(e.target.value))}} placeholder='Cost'/>
+            <input type='date' value={sdate} className=' px-4 py-2 m-2 border border-emerald-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-700'
             onChange = {(e) => {setSDate(e.target.value)}}/>
             
             <table className="table-auto select-none my-4 ml-2 border-2 col-span-2 border-amber-500 min-w-[100px]">

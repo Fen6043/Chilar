@@ -173,13 +173,13 @@ const Budget = () => {
     {error && <div className= ' text-red-500 flex justify-center mb-2 w-3/4'>Error Occured. Try again later</div>}
 
     <div className='grid grid-cols-2 mt-10'>
-        <div className=' mx-2 p-2 border border-emerald-500 w-fit'><b>Total Income: {sumIncome()} </b></div>
-        <div className=' mx-2 p-2 border border-rose-500 w-fit'><b>Total Expense:{sumExpense()} </b></div>
+        <div className=' mx-2 p-2 border border-emerald-500 w-fit' style={{backgroundColor:'var(--background)'}}><b>Total Income: {sumIncome()} </b></div>
+        <div className=' mx-2 p-2 border border-rose-500 w-fit' style={{backgroundColor:'var(--background)'}}><b>Total Expense:{sumExpense()} </b></div>
     </div>
 
     <div className='grid grid-cols-2'>
         <div className=' m-2'>
-            <table className=' select-none border-2 border-emerald-500 table-auto w-full'>
+            <table className=' select-none border-2 border-emerald-500 table-auto w-full' style={{backgroundColor:'var(--background)'}}>
                 <thead className=' border-2 border-emerald-500 '>
                     <tr>
                         <th className='p-2 w-1/2'>Income Item</th>
@@ -189,7 +189,7 @@ const Budget = () => {
                 <tbody>
                     {incomeTableData.map((row,index) => {
                         return(
-                        <tr key={"I"+index} className={` hover:bg-emerald-600 ${(style && keyRef.current === "I"+index)?"transition-colors duration-500 hover:bg-emerald-800 bg-emerald-800":""}`} 
+                        <tr key={"I"+index} className={`hover:bg-emerald-600 ${(style && keyRef.current === "I"+index)?"transition-colors duration-500 hover:bg-emerald-800 bg-emerald-800":""}`} 
                         onMouseDown={()=>removeTimer("Income",index,row._id)} 
                         onTouchStart={()=>removeTimer("Income",index,row._id)}
                         onTouchEnd={removeTimerCancel}
@@ -204,7 +204,7 @@ const Budget = () => {
         </div>
 
         <div className=' m-2'>
-            <table className=' select-none border-2 border-rose-500 table-auto w-full'>
+            <table className=' select-none border-2 border-rose-500 table-auto w-full' style={{backgroundColor:'var(--background)'}}>
                 <thead className=' border-2 border-rose-500 '>
                     <tr>
                         <th className='p-2 w-1/2'>Expense Item</th>
