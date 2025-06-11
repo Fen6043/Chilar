@@ -9,6 +9,7 @@ export default function CircularProgress({ value = 0,size = 100, remaining, outo
   const strokeWidth = 8;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
+  if(value<0) value = 0;
   const offset = circumference - (value / 100) * circumference;
 
   return (

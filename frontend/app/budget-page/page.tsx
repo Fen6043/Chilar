@@ -159,7 +159,7 @@ const Budget = () => {
     <>
     <Toolbar></Toolbar>
     <div className=' w-full items-center justify-center flex'>
-        <button className={`m-2 w-12 h-10 rounded-full text-2xl cursor-pointer ${toggleTable ? 'bg-emerald-600':'bg-rose-600'}`} onClick={() => {setToggleTable(!toggleTable)}}>
+        <button className={`m-2 w-12 h-10 rounded-full text-xl cursor-pointer ${toggleTable ? 'bg-emerald-600':'bg-rose-600'}`} onClick={() => {setToggleTable(!toggleTable)}}>
             {toggleTable ? "+":"-"}
         </button>
         <form className=' items-center justify-center grid grid-cols-3' onSubmit={(e) => formsubmit(e)}>

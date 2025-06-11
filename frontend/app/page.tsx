@@ -1,8 +1,7 @@
-import Homepage from "./components/Homepage";
-
+import Login from "./auth/login/page";
 
 export default function Home() {
   return (
-    <Homepage/>
+      <Login/>
   );
 }

@@ -2,9 +2,9 @@
 import axios from 'axios';
 import Image from "next/image";
 import React, { useEffect, useState } from 'react'
-import Toolbar from './Toolbar';
+import Toolbar from '../components/Toolbar';
 import { useRouter } from 'next/navigation';
-import CircularProgress from './CircularProgress';
+import CircularProgress from '../components/CircularProgress';
 
 const Homepage = () => {
   interface Expense {
@@ -29,7 +29,8 @@ const Homepage = () => {
 
   const formatDate = (date: Date) => {
     const month = (date.getMonth() + 1).toString().padStart(2,'0')
-    return `${date.getFullYear()}-${month}-${date.getDate()}`
+    const day = (date.getDate()).toString().padStart(2,'0')
+    return `${date.getFullYear()}-${month}-${day}`
   }
 
   const [sdate, setSDate] = useState(formatDate(today))
@@ -155,7 +156,7 @@ const Homepage = () => {
             <input type='date' value={sdate} className=' px-4 py-2 m-2 border border-emerald-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-700'
             onChange = {(e) => {setSDate(e.target.value)}}/>
             
-            <table className="table-auto select-none my-4 ml-2 border-2 col-span-2 border-amber-500 min-w-[100px]">
+            <table className="table-auto select-none my-4 ml-2 border-2 col-span-3 sm:col-span-2 border-amber-500 min-w-[100px]">
               <thead>
                 <tr className='text-center'>
                   <th className=" px-6 py-2">Details</th>
@@ -178,9 +179,9 @@ const Homepage = () => {
               </tbody>
             </table>
 
-            <div className='w-full my-4 flex flex-col items-end sm:items-center'>
-                <button type='submit' className=' h-10 w-1/2 sm:w-3/4 mr-2 bg-amber-500 rounded-full cursor-pointer select-none hover:bg-amber-700 font-bold'>Submit</button>
-                <button type='reset' className=' h-10 w-1/2 sm:w-3/4 mr-2 bg-rose-500 rounded-full cursor-pointer select-none hover:bg-rose-700 font-bold mt-2' onClick={undoLatestEntry}>Undo</button>
+            <div className='w-full col-span-3 sm:col-span-1 my-4 flex flex-col items-center'>
+                <button type='submit' className=' h-10 w-1/2 mr-2 bg-amber-500 rounded-full cursor-pointer select-none hover:bg-amber-700 font-bold'>Submit</button>
+                <button type='reset' className=' h-10 w-1/2 mr-2 bg-rose-500 rounded-full cursor-pointer select-none hover:bg-rose-700 font-bold mt-2' onClick={undoLatestEntry}>Undo</button>
             </div>
           </form>
         </div>

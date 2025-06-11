@@ -14,6 +14,10 @@ const Budget = require("./mongoDB/budget")
 require("dotenv").config()
 app.use(express.json())
 app.use(cors())
+app.use((req,res,next) =>{
+    console.log("request Time",Date.now())
+    next()
+})
 
 mongoose.connect(process.env.MONGO_URI)
 .then(()=>{console.log("chillar db connected")})
@@ -49,6 +53,46 @@ app.get("/api/getVariableExpenseList/:num", async(req,res) => {
         }
         res.json(varExpense)
     } catch (error) {
+        res.status(500).json(error)
+    }
+})
+
+app.get("/api/getBudgetOftheMonth",async(req,res) => {
+    try {
+        //console.log("got request for monthly budget",req.query)
+        const monthList = req.query['list[]'];
+        //console.log(typeof(monthList))
+        //console.log(monthList)
+        const monthBudgetList = {}
+        if(monthList !== undefined){
+            if(typeof(monthList) !== 'string'){
+                for(const month of monthList){
+                    const budget = await Budget.findOne({
+                        setMonth:{
+                            $eq: month
+                        }
+                    })
+                    monthBudgetList[month] = budget?.monthlyBudget || 0
+                    //console.log(monthBudgetList)
+                }
+            }
+            else{
+                const budget = await Budget.findOne({
+                    setMonth:{
+                        $eq: monthList
+                    }
+                })
+                monthBudgetList[monthList] = budget?.monthlyBudget || 0
+                //console.log(monthBudgetList)
+            }
+            res.status(200).json(monthBudgetList)
+        }
+        else{
+            res.status(404).json("monthList is undefined")
+        }
+
+    } catch (error) {
+        console.log(error)
         res.status(500).json(error)
     }
 })

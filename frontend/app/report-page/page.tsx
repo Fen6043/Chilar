@@ -1,5 +1,5 @@
 'use client'
-import React, { useState , useEffect, useRef } from 'react'
+import React, { useState , useRef } from 'react'
 import Toolbar from '../components/Toolbar'
 import axios from 'axios';
 
@@ -11,6 +11,7 @@ const Report = () => {
     }
 
     const [expenseDetail, setExpenseDetail] = useState<Expense[]>([])
+    const [budgetList, setBudgetList] = useState<{[key:string]:number}>({})
     const today = new Date()
     const startDate = useRef(today)
     const endDate = useRef(today)
@@ -29,16 +30,46 @@ const Report = () => {
       //console.log("s:",startDate.current,"e:",endDate.current)
     }
 
+    const getBudgetofMonth = async() =>{
+      try {
+        const listofMonth:string[] = []
+        const current: Date = new Date(startDate.current)
+        current.setDate(1)
+        //console.log(current,endDate.current)
+        while (current<=endDate.current) {
+          const month = current.toLocaleString('default',{ month: 'short'})
+          const year = current.getFullYear()
+          listofMonth.push(`${month} ${year}`)
+          current.setMonth(current.getMonth() + 1)
+        }
+
+        //console.log(listofMonth)
+        const response = await axios.get("http://localhost:5000/api/getBudgetOftheMonth",{
+          params: {
+            list: listofMonth
+          }
+        })
+
+        //console.log(response.data)
+        setBudgetList(response.data)
+      } catch (error) {
+        console.log(error)
+        return 0
+      }
+    }
+
     const getExpenseDetail= async() => {
-      await axios.get(`http://localhost:5000/api/getVariableExpenseListByDate/${startDate.current.toUTCString()}/${endDate.current.toUTCString()}`)
-        .then((response) => {
-          if(response.status === 200){
-            //console.log(response.data)
-            setExpenseDetail(response.data);
-          } 
-          else
-            console.log(response)})
-        .catch((error)=>{console.log(error)})
+      try {
+        const response = await axios.get(`http://localhost:5000/api/getVariableExpenseListByDate/${startDate.current.toUTCString()}/${endDate.current.toUTCString()}`)
+        if(response.status === 200){
+          //console.log(response.data)
+          setExpenseDetail(response.data);
+        } 
+        else
+          console.log(response)
+      } catch (error) {
+        console.log(error)
+      }
     }
 
     const calculateTotalExpense = (monthparam:string,yearparam:number) =>{
@@ -55,16 +86,11 @@ const Report = () => {
         return Sum;
     }
 
-
-    useEffect(() => {
-      getExpenseDetail()
-    },[])
-
     return (
       <div>
           <Toolbar/>
           <div className=' flex justify-center p-2 mb-2 select-none'>
-            <form className=' flex flex-col sm:flex-row' onSubmit={(e) => {e.preventDefault();getExpenseDetail()}}>
+            <form className=' flex flex-col sm:flex-row' onSubmit={(e) => {e.preventDefault();getExpenseDetail();getBudgetofMonth()}}>
               <label htmlFor="from" className='p-2 font-mono'>From:</label>
               <input type='date' id='from' className=' border border-amber-500 rounded-xl p-2 mr-2'
                 onChange={(e) => {setDate(e,"StartDate")}} required/>
@@ -77,11 +103,13 @@ const Report = () => {
           <div className=' grid grid-cols-3'>
             <div className=' col-span-3 sm:col-span-2 border' style={{backgroundColor:'var(--background)'}}>
               {expenseDetail.map((expense,index) => {
+                  //console.log(expense.date)
                   const localdate = new Date(expense.date)
                   const month = localdate.toDateString().split(" ")[1]
                   const year = localdate.getFullYear()
                   let displayMonth = false;
                   let totalExpense = 0;
+                  let totalBudget = 0;
                   
                   // console.log("outside gaga with -",month,monthRef,year,yearRef)
                   if (month !== monthRef || year !== yearRef){
@@ -89,6 +117,7 @@ const Report = () => {
                     yearRef = year
                     displayMonth = true
                     totalExpense = calculateTotalExpense(month,year)
+                    totalBudget = budgetList[`${month} ${year}`]
                     // console.log("enter gaga for -",month,displayMonth)
                   }
                   return(
@@ -96,7 +125,10 @@ const Report = () => {
                     {displayMonth && (
                       <div className='bg-cyan-800 p-1 flex justify-between'>
                         <div className='font-mono text-lg p-1'>{`${month} ${year}`}</div>
-                        <div className='bg-rose-800 rounded-2xl p-1 px-2 text-lg'><u><b>Total Expense </b>{`- ${totalExpense}`}</u></div>
+                        <div className=' flex'>
+                          <div className='bg-green-800 rounded-2xl p-1 px-2 text-sm sm:text-lg mx-2'><u><b>Monthly Budget </b>{`- ${totalBudget}`}</u></div>
+                          <div className='bg-rose-800 rounded-2xl p-1 px-2 text-sm sm:text-lg'><u><b>Total Expense </b>{`- ${totalExpense}`}</u></div>
+                        </div>
                       </div>)}
                     {displayMonth && (
                       <div className='grid grid-cols-3 text-center border border-amber-500 font-mono font-bold'>
