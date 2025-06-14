@@ -15,6 +15,7 @@ const Homepage = () => {
   }
 
   const router = useRouter()
+  const [loading,setLoading] = useState(true)
   const [activeTab,setActiveTab] = useState<string>("Daily")
   const [monthlyFixedBudget,setMonthlyFixedBudget] = useState(0);
   const [dailyFixedBudget,setDailyFixedBudget] = useState(0);
@@ -83,8 +84,21 @@ const Homepage = () => {
     }
   }
 
+  const verifyMe = async() =>{
+    await axios.get('http://localhost:5000/api/auth/me',{withCredentials:true})
+    .then((response)=>{
+        console.log(response)
+        setLoading(false)
+    })
+    .catch((err) =>{
+      console.log(err)
+      router.replace('/auth/login')
+    })
+  }
+
   useEffect(() => {
     console.log("start")
+    verifyMe()
     getBudgetorExpense()
     getExpenseDetail()
   },[])
@@ -126,6 +140,12 @@ const Homepage = () => {
     getBudgetorExpense()
   }
   
+  if(loading){
+    return(
+      <div></div>
+    )
+  }
+  else{
   return (
     <>
     <Toolbar/>
@@ -199,6 +219,7 @@ const Homepage = () => {
     }
     </>
   )
+}
 }
 
 export default Homepage

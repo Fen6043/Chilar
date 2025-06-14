@@ -2,6 +2,7 @@
 import React, { FormEvent, useEffect, useRef, useState } from 'react'
 import Toolbar from '../components/Toolbar'
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 const Budget = () => {
     interface Budget {
@@ -10,6 +11,8 @@ const Budget = () => {
         cost: number;
     }
 
+    const router = useRouter()
+    const [loading,setLoading] = useState(true)
     const [item,setItem] = useState("")
     const [cost,setCost] = useState(0)
     const [toggleTable,setToggleTable] = useState(false)
@@ -36,7 +39,20 @@ const Budget = () => {
         .catch((err)=>{console.log("error occured while getting expense:",err)})
     }
 
+    const verifyMe = async() =>{
+      await axios.get('http://localhost:5000/api/auth/me',{withCredentials:true})
+      .then((response)=>{
+          console.log(response)
+          setLoading(false)
+      })
+      .catch((err) =>{
+        console.log(err)
+        router.replace('/auth/login')
+      })
+    }
+
     useEffect(()=>{
+        verifyMe()
         getIncomedata()
         getExpensedata()
         const getItem = localStorage.getItem("isBudgetSet")
@@ -155,6 +171,12 @@ const Budget = () => {
         }
     },[incomeTableData,expenseTableData])
 
+ if(loading){
+    return(
+      <div></div>
+    )
+  }
+  else{
   return (
     <>
     <Toolbar></Toolbar>
@@ -232,6 +254,7 @@ const Budget = () => {
     
     </>
   )
+}
 }
 
 export default Budget

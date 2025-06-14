@@ -1,7 +1,8 @@
 'use client'
-import React, { useState , useRef } from 'react'
+import React, { useState , useRef, useEffect } from 'react'
 import Toolbar from '../components/Toolbar'
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 const Report = () => {
     interface Expense {
@@ -10,6 +11,8 @@ const Report = () => {
         date:string;
     }
 
+    const router = useRouter()
+    const [loading,setLoading] = useState(true)
     const [expenseDetail, setExpenseDetail] = useState<Expense[]>([])
     const [budgetList, setBudgetList] = useState<{[key:string]:number}>({})
     const today = new Date()
@@ -17,6 +20,22 @@ const Report = () => {
     const endDate = useRef(today)
     let monthRef = ""
     let yearRef = -1
+
+    const verifyMe = async() =>{
+      await axios.get('http://localhost:5000/api/auth/me',{withCredentials:true})
+      .then((response)=>{
+          console.log(response)
+          setLoading(false)
+      })
+      .catch((err) =>{
+        console.log(err)
+        router.replace('/auth/login')
+      })
+    }
+
+    useEffect(()=>{
+      verifyMe()
+    },[])
 
     const setDate = (e:React.ChangeEvent<HTMLInputElement>,type:string) => {
       const getDate = e.target.value
@@ -86,6 +105,12 @@ const Report = () => {
         return Sum;
     }
 
+    if(loading){
+      return(
+        <div></div>
+      )
+    }
+    else{
     return (
       <div>
           <Toolbar/>
@@ -150,6 +175,7 @@ const Report = () => {
           </div>
       </div>
     )
+  }
 }
 
 export default Report

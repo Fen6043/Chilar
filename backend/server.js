@@ -2,6 +2,20 @@ const express = require("express")
 const cors = require("cors")
 const mongoose = require("mongoose")
 const app = express()
+const cookieParser = require('cookie-parser')
+require("dotenv").config()
+
+app.use(express.json())
+app.use(cors({
+  origin: process.env.ORIGIN,
+  credentials: true
+}))
+app.use(cookieParser())
+app.use((req,res,next) =>{
+    console.log("request Time",Date.now())
+    next()
+})
+
 /** @type {import('mongoose').Model<any>} */
 const Income = require("./mongoDB/income")
 /** @type {import('mongoose').Model<any>} */
@@ -11,17 +25,13 @@ const VariableExpense = require("./mongoDB/variableExpense")
 /** @type {import('mongoose').Model<any>} */
 const Budget = require("./mongoDB/budget")
 
-require("dotenv").config()
-app.use(express.json())
-app.use(cors())
-app.use((req,res,next) =>{
-    console.log("request Time",Date.now())
-    next()
-})
+const authRouter = require('./routes/auth')
 
 mongoose.connect(process.env.MONGO_URI)
 .then(()=>{console.log("chillar db connected")})
 .catch((err)=>{console.log("chillar db not connected, error:",err)})
+
+app.use("/api/auth",authRouter)
 
 app.get("/api/getIncome",async(req,res) => {
     try {
