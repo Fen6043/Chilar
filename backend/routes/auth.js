@@ -71,17 +71,23 @@ router.get('/logout',(req,res)=>{
     }
 })
 
-router.get('/me',(req,res) => {
+router.get('/me',async(req,res) => {
     const token = req.cookies?.chillarToken;
     //console.log(req.cookies)
     if(!token)
         return res.status(401).json({message:"no token found"})
     else{
-        res.status(200).json({message:"Access granted"})
+        const user = JWT.verifyToken(token)
+        const userExists = await User.exists({
+            _id:{
+                $eq: user.id
+            }
+        })
+        if(userExists)
+            res.status(200).json({message:"Access granted"})
+        else
+            res.status(401).json({message:"Unauthorised"})
     }
-
-    const user = JWT.verifyToken(token)
-    console.log(user,"logged in")
 })
 
 

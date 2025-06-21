@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 
 const budgetSchema = mongoose.Schema({
+    userId:String,
     income:Number,
     expense:Number,
     monthlyBudget:Number,

@@ -16,6 +16,8 @@ app.use((req,res,next) =>{
     next()
 })
 
+const JWT = require('./utils/jwt')
+
 /** @type {import('mongoose').Model<any>} */
 const Income = require("./mongoDB/income")
 /** @type {import('mongoose').Model<any>} */
@@ -35,7 +37,13 @@ app.use("/api/auth",authRouter)
 
 app.get("/api/getIncome",async(req,res) => {
     try {
-        const income = await Income.find();
+        const token = req.cookies?.chillarToken;
+        const user = JWT.verifyToken(token)
+        const income = await Income.find({
+            userId:{
+                $eq: user.id
+            }
+        });
         res.json(income)
     } catch (error) {
         res.status(500).json(error)
@@ -44,7 +52,13 @@ app.get("/api/getIncome",async(req,res) => {
 
 app.get("/api/getFixedExpense",async(req,res) => {
     try {
-        const expense = await FixedExpense.find();
+        const token = req.cookies?.chillarToken;
+        const user = JWT.verifyToken(token)
+        const expense = await FixedExpense.find({
+            userId:{
+                $eq: user.id
+            }
+        });
         res.json(expense)
     } catch (error) {
         res.status(500).json(error)
@@ -53,13 +67,23 @@ app.get("/api/getFixedExpense",async(req,res) => {
 
 app.get("/api/getVariableExpenseList/:num", async(req,res) => {
     try {
+        const token = req.cookies?.chillarToken;
+        const user = JWT.verifyToken(token)
         const num =parseInt(req.params.num)
         let varExpense
         if(num>0){
-            varExpense = await VariableExpense.find().sort({ createdAt: -1 }).limit(num);
+            varExpense = await VariableExpense.find({
+            userId:{
+                $eq: user.id
+            }
+        }).sort({ createdAt: -1 }).limit(num);
         }
         else{
-            varExpense = await VariableExpense.find().sort({ date: -1 });
+            varExpense = await VariableExpense.find({
+            userId:{
+                $eq: user.id
+            }
+        }).sort({ date: -1 });
         }
         res.json(varExpense)
     } catch (error) {
@@ -70,6 +94,8 @@ app.get("/api/getVariableExpenseList/:num", async(req,res) => {
 app.get("/api/getBudgetOftheMonth",async(req,res) => {
     try {
         //console.log("got request for monthly budget",req.query)
+        const token = req.cookies.chillarToken
+        const user = JWT.verifyToken(token)
         const monthList = req.query['list[]'];
         //console.log(typeof(monthList))
         //console.log(monthList)
@@ -78,6 +104,9 @@ app.get("/api/getBudgetOftheMonth",async(req,res) => {
             if(typeof(monthList) !== 'string'){
                 for(const month of monthList){
                     const budget = await Budget.findOne({
+                        userId:{
+                            $eq: user.id
+                        },
                         setMonth:{
                             $eq: month
                         }
@@ -88,6 +117,9 @@ app.get("/api/getBudgetOftheMonth",async(req,res) => {
             }
             else{
                 const budget = await Budget.findOne({
+                    userId:{
+                        $eq: user.id
+                    },
                     setMonth:{
                         $eq: monthList
                     }
@@ -109,12 +141,17 @@ app.get("/api/getBudgetOftheMonth",async(req,res) => {
 
 app.get("/api/getVariableExpense/:date", async(req,res) => {
     try {
+        const token = req.cookies.chillarToken
+        const user = JWT.verifyToken(token)
         const today = new Date(req.params.date)
         //const stoday = new Date(today.getFullYear(),today.getMonth(),today.getDate())
         //console.log(today,req.params.date)
         const firstday = new Date(today.getFullYear(),today.getMonth(),1)
         const lastday = new Date(today.getFullYear(),today.getMonth()+1,0,23, 59, 59, 999)
         const monthlyExpense = await VariableExpense.aggregate([
+            {
+                $match:{userId:user.id}
+            },
             {
                 $match: {
                     date: {
@@ -132,6 +169,9 @@ app.get("/api/getVariableExpense/:date", async(req,res) => {
         ])
 
         const dailyExpense = await VariableExpense.aggregate([
+            {
+                $match:{userId:user.id}
+            },
             {
                 $match:{
                     date:{
@@ -157,7 +197,10 @@ app.get("/api/getVariableExpense/:date", async(req,res) => {
 
 app.get("/api/getFixedBudget",async(req,res) => {
     try {
+        const token = req.cookies?.chillarToken;
+        const user = JWT.verifyToken(token)
         const incomeSum = await Income.aggregate([
+          { $match: { userId: user.id } },
           {
             $group: {
               _id: null,
@@ -167,8 +210,9 @@ app.get("/api/getFixedBudget",async(req,res) => {
         ]);
 
         const expenseSum = await FixedExpense.aggregate([
+            {$match: {userId:user.id}},
             {
-                $group: {
+              $group: {
                     _id: null,
                     totalCost: { $sum: "$cost" }
                 }
@@ -180,29 +224,34 @@ app.get("/api/getFixedBudget",async(req,res) => {
         const totalExpense = expenseSum[0]?.totalCost || 0
         res.json({totalfixedBudget: (totalIncome - totalExpense)})
     } catch (error) {
-        console.log(error)
+        console.log("error occured at getFixedBudget",error)
         res.status(500).json(error)
     }
 })
 
 app.get("/api/getVariableExpenseListByDate/:startDate/:endDate",async(req,res)=>{
     try {
+        const token = req.cookies.chillarToken
+        const user = JWT.verifyToken(token)
         const startDate = new Date(req.params.startDate)
         const endDate = new Date(req.params.endDate)
 
         const variableExpenseList = await VariableExpense.aggregate([
             {
-                $match:{
-                    date:{
-                        $gte:startDate,
-                        $lte:endDate
-                    }
-                }
+                $match:{userId:user.id}
             },
             {
-                $sort:{
-                    date: -1
-                }
+              $match:{
+                  date:{
+                      $gte:startDate,
+                      $lte:endDate
+                  }
+              }
+            },
+            {
+              $sort:{
+                  date: -1
+              }
             }
         ])
 
@@ -215,8 +264,12 @@ app.get("/api/getVariableExpenseListByDate/:startDate/:endDate",async(req,res)=>
 
 app.get("/api/checkifBudgetSet/:setMonth",async(req,res) => {
     //console.log(req.params.setMonth)
-
+    const token = req.cookies.chillarToken
+    const user = JWT.verifyToken(token)
     const budgetDetail = await Budget.exists({
+        userId:{
+            $eq:user.id
+        },
         setMonth:{
             $eq:req.params.setMonth
         }
@@ -228,9 +281,14 @@ app.get("/api/checkifBudgetSet/:setMonth",async(req,res) => {
 
 app.post("/api/BudgetSetForTheMonth",async(req,res) => {
     try {
-        const setdata = {income:parseFloat(req.body.income), expense:parseFloat(req.body.expense), monthlyBudget:parseFloat(req.body.income) - parseFloat(req.body.expense),setMonth:req.body.setMonth}
+        const token = req.cookies.chillarToken
+        const user = JWT.verifyToken(token)
+        const setdata = {userId:user.id,income:parseFloat(req.body.income), expense:parseFloat(req.body.expense), monthlyBudget:parseFloat(req.body.income) - parseFloat(req.body.expense),setMonth:req.body.setMonth}
         
         await Budget.findOneAndUpdate({
+            userId:{
+                $eq:user.id
+            },
             setMonth:{
             $eq:req.body.setMonth
         }
@@ -244,7 +302,9 @@ app.post("/api/BudgetSetForTheMonth",async(req,res) => {
 
 app.post("/api/addIncome",async(req,res) => {
     try {
-        const newIncome = new Income({item:req.body.item ,cost:req.body.cost})
+        const token = req.cookies?.chillarToken;
+        const user = JWT.verifyToken(token)
+        const newIncome = new Income({userId:user.id,item:req.body.item ,cost:req.body.cost})
         await newIncome.save();
         res.status(200).json(newIncome)
     } catch (error) {
@@ -255,7 +315,9 @@ app.post("/api/addIncome",async(req,res) => {
 
 app.post("/api/addExpense",async(req,res) => {
     try {
-        const newExpense = new FixedExpense({item:req.body.item ,cost:req.body.cost})
+        const token = req.cookies?.chillarToken;
+        const user = JWT.verifyToken(token)
+        const newExpense = new FixedExpense({userId:user.id,item:req.body.item ,cost:req.body.cost})
         await newExpense.save();
         res.status(200).json(newExpense)
     } catch (error) {
@@ -266,9 +328,11 @@ app.post("/api/addExpense",async(req,res) => {
 
 app.post("/api/addvariableExpense", async(req,res) => {
     try {
-        const newVarExpense = new VariableExpense({item:req.body.item, cost:req.body.cost, date:req.body.date})
+        const token = req.cookies.chillarToken
+        const user = JWT.verifyToken(token)
+        const newVarExpense = new VariableExpense({userId:user.id,item:req.body.item, cost:req.body.cost, date:req.body.date})
         await newVarExpense.save();
-        res.status(200).json(newVarExpense)
+        res.status(200).json("Successfully added")
     } catch (error) {
         res.status(500).json(error)
     }

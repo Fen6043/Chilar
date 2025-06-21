@@ -66,7 +66,8 @@ const Report = () => {
         const response = await axios.get("http://localhost:5000/api/getBudgetOftheMonth",{
           params: {
             list: listofMonth
-          }
+          },
+          withCredentials:true
         })
 
         //console.log(response.data)
@@ -79,7 +80,7 @@ const Report = () => {
 
     const getExpenseDetail= async() => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/getVariableExpenseListByDate/${startDate.current.toUTCString()}/${endDate.current.toUTCString()}`)
+        const response = await axios.get(`http://localhost:5000/api/getVariableExpenseListByDate/${startDate.current.toUTCString()}/${endDate.current.toUTCString()}`,{withCredentials:true})
         if(response.status === 200){
           //console.log(response.data)
           setExpenseDetail(response.data);

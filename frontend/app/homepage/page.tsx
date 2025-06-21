@@ -38,7 +38,7 @@ const Homepage = () => {
   const [expenseDetail, setExpenseDetail] = useState<Expense[]>([])
 
   const getExpenseDetail= async() => {
-    await axios.get("http://localhost:5000/api/getVariableExpenseList/4")
+    await axios.get("http://localhost:5000/api/getVariableExpenseList/4",{withCredentials:true})
     .then((response) => {setExpenseDetail(response.data);})
     .catch((error)=>{console.log(error)})
   }
@@ -51,7 +51,7 @@ const Homepage = () => {
 
     try {
       const dateString = today.toDateString()
-      const response = await axios.get(`http://localhost:5000/api/checkifBudgetSet/${dateString.split(" ")[1]} ${dateString.split(" ")[3]}`);
+      const response = await axios.get(`http://localhost:5000/api/checkifBudgetSet/${dateString.split(" ")[1]} ${dateString.split(" ")[3]}`,{withCredentials:true});
       //console.log(dateString.split(" ")[1],dateString.split(" ")[3])
       const isBudgetSet = response.data;
 
@@ -63,11 +63,11 @@ const Homepage = () => {
       }
 
       // Get fixed budget
-      const fixedBudgetResponse = await axios.get("http://localhost:5000/api/getFixedBudget");
+      const fixedBudgetResponse = await axios.get("http://localhost:5000/api/getFixedBudget",{withCredentials:true});
       monthlyFixedBudget = fixedBudgetResponse.data?.totalfixedBudget;
 
       // Get variable expense
-      const variableExpenseResponse = await axios.get(`http://localhost:5000/api/getVariableExpense/${today.toUTCString()}`);
+      const variableExpenseResponse = await axios.get(`http://localhost:5000/api/getVariableExpense/${today.toUTCString()}`,{withCredentials:true});
       dailyVariableExpense = variableExpenseResponse.data?.dailyVariableExpense;
       monthlyVariableExpense = variableExpenseResponse.data?.monthlyVariableExpense;
 
@@ -110,7 +110,7 @@ const Homepage = () => {
     //console.log("testtime - ",testTime.toISOString())
     //console.log(sendlocalDate)
     const temp = {item:item,cost:cost,date:localDate.toUTCString()}
-    await axios.post("http://localhost:5000/api/addvariableExpense",temp)
+    await axios.post("http://localhost:5000/api/addvariableExpense",temp,{withCredentials:true})
     .then((response) => {console.log(response.data)})
     .catch((error) => {console.log("error occured while posting variableExpense",error)})
     getExpenseDetail()

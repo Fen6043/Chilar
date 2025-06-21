@@ -27,14 +27,14 @@ const Budget = () => {
 
     //get Income data from DB
     const getIncomedata = async() =>{
-        await axios.get("http://localhost:5000/api/getIncome")
+        await axios.get("http://localhost:5000/api/getIncome",{withCredentials:true})
         .then((response) => {setIncomeTableData(response.data);})
         .catch((err)=>{console.log("error occured while getting income:",err)})
     }
 
     //get Expense data from DB
     const getExpensedata = async() =>{
-        await axios.get("http://localhost:5000/api/getFixedExpense")
+        await axios.get("http://localhost:5000/api/getFixedExpense",{withCredentials:true})
         .then((response) => {setExpenseTableData(response.data);})
         .catch((err)=>{console.log("error occured while getting expense:",err)})
     }
@@ -64,7 +64,7 @@ const Budget = () => {
         e.preventDefault();
         if (toggleTable){
             //send data to db
-            await axios.post("http://localhost:5000/api/addIncome",{item:item,cost:cost})
+            await axios.post("http://localhost:5000/api/addIncome",{item:item,cost:cost},{withCredentials:true})
             .then((response)=>{
                 //console.log(response.status,response.data); 
                 setIncomeTableData([...incomeTableData,response.data]);
@@ -76,7 +76,7 @@ const Budget = () => {
         }
         else{
             //send data to db
-            await axios.post("http://localhost:5000/api/addExpense",{item:item,cost:cost})
+            await axios.post("http://localhost:5000/api/addExpense",{item:item,cost:cost},{withCredentials:true})
             .then((response)=>{
                 //console.log(response.status,response.data); 
                 setExpenseTableData([...expenseTableData,response.data]);
@@ -158,7 +158,7 @@ const Budget = () => {
         const totalIncome = sumIncome()
         const totalExpense = sumExpense()
         const sendData = {income:totalIncome,expense:totalExpense,setMonth:setMonth}
-        axios.post("http://localhost:5000/api/BudgetSetForTheMonth",sendData)
+        axios.post("http://localhost:5000/api/BudgetSetForTheMonth",sendData,{withCredentials:true})
         .then((res) => {console.log(res);localStorage.removeItem("isBudgetSet")})
         .catch((err) => {console.log(err)})
     }
@@ -190,7 +190,7 @@ const Budget = () => {
             <button type='submit' className='px-4 py-2 m-2 bg-amber-500 rounded-full cursor-pointer hover:bg-amber-700 font-bold'>Submit</button>
         </form>
     </div>
-    {isBudgetNotSet && <button className='bg-amber-600 hover:bg-emerald-700 rounded-es-lg transition-all duration-300 animate-bounce hover:animate-none font-mono p-2 mx-2 cursor-pointer'
+    {isBudgetNotSet && <button className='bg-amber-600 hover:bg-emerald-700 rounded-es-lg transition-all duration-300 animate-bounce hover:animate-none font-mono p-2 mx-2 mt-3 cursor-pointer'
     onClick={()=>{verifyBudget();setisBudgetNotSet(false)}}>Verify</button>}
     {error && <div className= ' text-red-500 flex justify-center mb-2 w-3/4'>Error Occured. Try again later</div>}
 
