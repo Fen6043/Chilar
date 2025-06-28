@@ -23,8 +23,8 @@ const Report = () => {
 
     const verifyMe = async() =>{
       await axios.get(apiLoc+'api/auth/me',{withCredentials:true})
-      .then((response)=>{
-          console.log(response)
+      .then(()=>{
+          //console.log(response)
           setLoading(false)
       })
       .catch((err) =>{

@@ -33,7 +33,7 @@ const SignIn = () => {
             return setErrormessage4("Password and confirm password doesn't match")
         }
 
-        console.log(apiLoc)
+        //console.log(apiLoc)
         await axios.post(apiLoc+'api/auth/signup',{username,email,password})
         .then((response) =>{
             if(response?.status === 200){
@@ -47,7 +47,7 @@ const SignIn = () => {
                     setErrormessage2("email already exists")
             }
             else if(response?.status === 201){
-                console.log(response.status,response.data)
+                //console.log(response.status,response.data)
                 alert("User created. Please login.")
                 router.push("/auth/login")
             }

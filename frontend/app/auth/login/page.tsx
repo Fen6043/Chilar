@@ -12,10 +12,10 @@ const Login = () => {
     const [errormessage,setErrormessage] = useState<string>("")
 
     const verifyMe = async() =>{
-        console.log(apiLoc)
+        //console.log(apiLoc)
         await axios.get(apiLoc+'api/auth/me',{withCredentials:true})
         .then((response)=>{
-            console.log(response)
+            //console.log(response)
             if(response.status === 200)
                 router.push("/homepage")
         })

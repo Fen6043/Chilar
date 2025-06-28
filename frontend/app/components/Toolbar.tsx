@@ -11,8 +11,8 @@ function Toolbar(){
 
     const logout = () =>{
         axios.get(apiLoc+'api/auth/logout',{withCredentials:true})
-        .then((res) =>{
-            console.log(res)
+        .then(() =>{
+            //console.log(res)
             route.push('/auth/login')
         })
         .catch((err)=>{

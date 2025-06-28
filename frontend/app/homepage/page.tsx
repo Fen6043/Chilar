@@ -87,8 +87,8 @@ const Homepage = () => {
 
   const verifyMe = async() =>{
     await axios.get(apiLoc+'api/auth/me',{withCredentials:true})
-    .then((response)=>{
-        console.log(response)
+    .then(()=>{
+        //console.log(response)
         setLoading(false)
     })
     .catch((err) =>{
@@ -98,7 +98,7 @@ const Homepage = () => {
   }
 
   useEffect(() => {
-    console.log("start")
+    //console.log("start")
     verifyMe()
     getBudgetorExpense()
     getExpenseDetail()
@@ -112,7 +112,7 @@ const Homepage = () => {
     //console.log(sendlocalDate)
     const temp = {item:item,cost:cost,date:localDate.toUTCString()}
     await axios.post(apiLoc+"api/addvariableExpense",temp,{withCredentials:true})
-    .then((response) => {console.log(response.data)})
+    //.then((response) => {console.log(response.data)})
     .catch((error) => {console.log("error occured while posting variableExpense",error)})
     getExpenseDetail()
 
@@ -134,7 +134,7 @@ const Homepage = () => {
 
   const undoLatestEntry = async() => {
     await axios.delete(apiLoc+"api/deleteLatestVariableExpense")
-    .then((response) => {console.log(response)})
+    //.then((response) => {console.log(response)})
     .catch((err) => {console.log(err)})
 
     getExpenseDetail()
