@@ -48,6 +48,7 @@ router.post('/login',async(req,res) =>{
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             maxAge: 86400000, // 1 day
+            sameSite: 'None'
         })
 
         res.status(200).json({message:"Logged in successfully"})
@@ -62,7 +63,8 @@ router.get('/logout',(req,res)=>{
     try {
         res.clearCookie('chillarToken',{
             httpOnly:true,
-            secure: process.env.NODE_ENV === 'production'
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'None'
         })
 
         res.status(200).json({message:"Logged out"})
