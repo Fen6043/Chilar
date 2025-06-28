@@ -5,13 +5,15 @@ import { useRouter } from "next/navigation"
 import { FormEvent, useEffect, useState } from "react"
 
 const Login = () => {
+    const apiLoc = process.env.NEXT_PUBLIC_API_LOC
     const router = useRouter()
     const [username,setUsername] = useState<string>("")
     const [password,setPassword] = useState<string>("")
     const [errormessage,setErrormessage] = useState<string>("")
 
     const verifyMe = async() =>{
-        await axios.get('http://localhost:5000/api/auth/me',{withCredentials:true})
+        console.log(apiLoc)
+        await axios.get(apiLoc+'api/auth/me',{withCredentials:true})
         .then((response)=>{
             console.log(response)
             if(response.status === 200)
@@ -27,7 +29,7 @@ const Login = () => {
     const checkLogin = async(e:FormEvent<HTMLFormElement>) =>{
         setErrormessage("")
         e.preventDefault()
-        axios.post('http://localhost:5000/api/auth/login',{username,password},{withCredentials:true})
+        axios.post(apiLoc+'api/auth/login',{username,password},{withCredentials:true})
         .then((response) => {
             if(response?.status === 200)
                 router.push("/homepage")

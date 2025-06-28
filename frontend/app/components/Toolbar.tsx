@@ -7,9 +7,10 @@ import { usePathname, useRouter } from "next/navigation";
 function Toolbar(){
     const route = useRouter();
     const pathname = usePathname();
+    const apiLoc = process.env.NEXT_PUBLIC_API_LOC
 
     const logout = () =>{
-        axios.get('http://localhost:5000/api/auth/logout',{withCredentials:true})
+        axios.get(apiLoc+'api/auth/logout',{withCredentials:true})
         .then((res) =>{
             console.log(res)
             route.push('/auth/login')

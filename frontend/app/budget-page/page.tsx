@@ -11,6 +11,7 @@ const Budget = () => {
         cost: number;
     }
 
+    const apiLoc = process.env.NEXT_PUBLIC_API_LOC
     const router = useRouter()
     const [loading,setLoading] = useState(true)
     const [item,setItem] = useState("")
@@ -27,20 +28,20 @@ const Budget = () => {
 
     //get Income data from DB
     const getIncomedata = async() =>{
-        await axios.get("http://localhost:5000/api/getIncome",{withCredentials:true})
+        await axios.get(apiLoc+"api/getIncome",{withCredentials:true})
         .then((response) => {setIncomeTableData(response.data);})
         .catch((err)=>{console.log("error occured while getting income:",err)})
     }
 
     //get Expense data from DB
     const getExpensedata = async() =>{
-        await axios.get("http://localhost:5000/api/getFixedExpense",{withCredentials:true})
+        await axios.get(apiLoc+"api/getFixedExpense",{withCredentials:true})
         .then((response) => {setExpenseTableData(response.data);})
         .catch((err)=>{console.log("error occured while getting expense:",err)})
     }
 
     const verifyMe = async() =>{
-      await axios.get('http://localhost:5000/api/auth/me',{withCredentials:true})
+      await axios.get(apiLoc+'api/auth/me',{withCredentials:true})
       .then((response)=>{
           console.log(response)
           setLoading(false)
@@ -64,7 +65,7 @@ const Budget = () => {
         e.preventDefault();
         if (toggleTable){
             //send data to db
-            await axios.post("http://localhost:5000/api/addIncome",{item:item,cost:cost},{withCredentials:true})
+            await axios.post(apiLoc+"api/addIncome",{item:item,cost:cost},{withCredentials:true})
             .then((response)=>{
                 //console.log(response.status,response.data); 
                 setIncomeTableData([...incomeTableData,response.data]);
@@ -76,7 +77,7 @@ const Budget = () => {
         }
         else{
             //send data to db
-            await axios.post("http://localhost:5000/api/addExpense",{item:item,cost:cost},{withCredentials:true})
+            await axios.post(apiLoc+"api/addExpense",{item:item,cost:cost},{withCredentials:true})
             .then((response)=>{
                 //console.log(response.status,response.data); 
                 setExpenseTableData([...expenseTableData,response.data]);
@@ -92,7 +93,7 @@ const Budget = () => {
     const removeExpense = async(index:number,id:string) => {
         const tempdata = [...expenseTableData]
 
-        await axios.delete(`http://localhost:5000/api/deleteExpense/${id}`)
+        await axios.delete(`${apiLoc}api/deleteExpense/${id}`)
         .then((response)=>{console.log(response.status,response.data)})
         .catch((err)=>{console.log("error occured while deleting income: ",err)})
 
@@ -105,7 +106,7 @@ const Budget = () => {
     const removeIncome = async(index:number,id:string) => {
         const tempdata = [...incomeTableData]
 
-        await axios.delete(`http://localhost:5000/api/deleteIncome/${id}`)
+        await axios.delete(`${apiLoc}api/deleteIncome/${id}`)
         .then((response)=>{console.log(response.status,response.data)})
         .catch((err)=>{console.log("error occured while deleting income: ",err)})
 
@@ -158,7 +159,7 @@ const Budget = () => {
         const totalIncome = sumIncome()
         const totalExpense = sumExpense()
         const sendData = {income:totalIncome,expense:totalExpense,setMonth:setMonth}
-        axios.post("http://localhost:5000/api/BudgetSetForTheMonth",sendData,{withCredentials:true})
+        axios.post(apiLoc+"api/BudgetSetForTheMonth",sendData,{withCredentials:true})
         .then((res) => {console.log(res);localStorage.removeItem("isBudgetSet")})
         .catch((err) => {console.log(err)})
     }

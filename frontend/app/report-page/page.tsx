@@ -10,7 +10,7 @@ const Report = () => {
         cost:number;
         date:string;
     }
-
+    const apiLoc = process.env.NEXT_PUBLIC_API_LOC
     const router = useRouter()
     const [loading,setLoading] = useState(true)
     const [expenseDetail, setExpenseDetail] = useState<Expense[]>([])
@@ -22,7 +22,7 @@ const Report = () => {
     let yearRef = -1
 
     const verifyMe = async() =>{
-      await axios.get('http://localhost:5000/api/auth/me',{withCredentials:true})
+      await axios.get(apiLoc+'api/auth/me',{withCredentials:true})
       .then((response)=>{
           console.log(response)
           setLoading(false)
@@ -63,7 +63,7 @@ const Report = () => {
         }
 
         //console.log(listofMonth)
-        const response = await axios.get("http://localhost:5000/api/getBudgetOftheMonth",{
+        const response = await axios.get(apiLoc+"api/getBudgetOftheMonth",{
           params: {
             list: listofMonth
           },
@@ -80,7 +80,7 @@ const Report = () => {
 
     const getExpenseDetail= async() => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/getVariableExpenseListByDate/${startDate.current.toUTCString()}/${endDate.current.toUTCString()}`,{withCredentials:true})
+        const response = await axios.get(`${apiLoc}api/getVariableExpenseListByDate/${startDate.current.toUTCString()}/${endDate.current.toUTCString()}`,{withCredentials:true})
         if(response.status === 200){
           //console.log(response.data)
           setExpenseDetail(response.data);

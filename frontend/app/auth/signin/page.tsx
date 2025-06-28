@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react"
 import axios from "axios"
 
 const SignIn = () => {
+    const apiLoc = process.env.NEXT_PUBLIC_API_LOC
     const router = useRouter()
     const [username,setUsername] = useState<string>("")
     const [email,setEmail] = useState<string>("")
@@ -32,7 +33,8 @@ const SignIn = () => {
             return setErrormessage4("Password and confirm password doesn't match")
         }
 
-        await axios.post('http://localhost:5000/api/auth/signup',{username,email,password})
+        console.log(apiLoc)
+        await axios.post(apiLoc+'api/auth/signup',{username,email,password})
         .then((response) =>{
             if(response?.status === 200){
                 if(response.data?.type === "both"){

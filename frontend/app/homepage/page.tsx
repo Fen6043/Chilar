@@ -14,6 +14,7 @@ const Homepage = () => {
     date:string;
   }
 
+  const apiLoc = process.env.NEXT_PUBLIC_API_LOC
   const router = useRouter()
   const [loading,setLoading] = useState(true)
   const [activeTab,setActiveTab] = useState<string>("Daily")
@@ -38,7 +39,7 @@ const Homepage = () => {
   const [expenseDetail, setExpenseDetail] = useState<Expense[]>([])
 
   const getExpenseDetail= async() => {
-    await axios.get("http://localhost:5000/api/getVariableExpenseList/4",{withCredentials:true})
+    await axios.get(apiLoc+"api/getVariableExpenseList/4",{withCredentials:true})
     .then((response) => {setExpenseDetail(response.data);})
     .catch((error)=>{console.log(error)})
   }
@@ -51,7 +52,7 @@ const Homepage = () => {
 
     try {
       const dateString = today.toDateString()
-      const response = await axios.get(`http://localhost:5000/api/checkifBudgetSet/${dateString.split(" ")[1]} ${dateString.split(" ")[3]}`,{withCredentials:true});
+      const response = await axios.get(`${apiLoc}api/checkifBudgetSet/${dateString.split(" ")[1]} ${dateString.split(" ")[3]}`,{withCredentials:true});
       //console.log(dateString.split(" ")[1],dateString.split(" ")[3])
       const isBudgetSet = response.data;
 
@@ -63,11 +64,11 @@ const Homepage = () => {
       }
 
       // Get fixed budget
-      const fixedBudgetResponse = await axios.get("http://localhost:5000/api/getFixedBudget",{withCredentials:true});
+      const fixedBudgetResponse = await axios.get(apiLoc+"api/getFixedBudget",{withCredentials:true});
       monthlyFixedBudget = fixedBudgetResponse.data?.totalfixedBudget;
 
       // Get variable expense
-      const variableExpenseResponse = await axios.get(`http://localhost:5000/api/getVariableExpense/${today.toUTCString()}`,{withCredentials:true});
+      const variableExpenseResponse = await axios.get(`${apiLoc}api/getVariableExpense/${today.toUTCString()}`,{withCredentials:true});
       dailyVariableExpense = variableExpenseResponse.data?.dailyVariableExpense;
       monthlyVariableExpense = variableExpenseResponse.data?.monthlyVariableExpense;
 
@@ -85,7 +86,7 @@ const Homepage = () => {
   }
 
   const verifyMe = async() =>{
-    await axios.get('http://localhost:5000/api/auth/me',{withCredentials:true})
+    await axios.get(apiLoc+'api/auth/me',{withCredentials:true})
     .then((response)=>{
         console.log(response)
         setLoading(false)
@@ -110,7 +111,7 @@ const Homepage = () => {
     //console.log("testtime - ",testTime.toISOString())
     //console.log(sendlocalDate)
     const temp = {item:item,cost:cost,date:localDate.toUTCString()}
-    await axios.post("http://localhost:5000/api/addvariableExpense",temp,{withCredentials:true})
+    await axios.post(apiLoc+"api/addvariableExpense",temp,{withCredentials:true})
     .then((response) => {console.log(response.data)})
     .catch((error) => {console.log("error occured while posting variableExpense",error)})
     getExpenseDetail()
@@ -132,7 +133,7 @@ const Homepage = () => {
   }
 
   const undoLatestEntry = async() => {
-    await axios.delete("http://localhost:5000/api/deleteLatestVariableExpense")
+    await axios.delete(apiLoc+"api/deleteLatestVariableExpense")
     .then((response) => {console.log(response)})
     .catch((err) => {console.log(err)})
 
