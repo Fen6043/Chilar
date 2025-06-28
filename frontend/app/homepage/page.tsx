@@ -171,13 +171,12 @@ const Homepage = () => {
       
       <div className=' w-full items-center justify-center flex'>
         <div className=' border border-amber-500 mt-6 p-1 rounded-xl' style={{backgroundColor: 'var(--background)'}}>
-          <form className=' justify-center grid grid-cols-3 gap-x-2' onSubmit={(e) => addToExpense(e)}>
+          <form className=' justify-center grid grid-cols-2 sm:grid-cols-3 gap-x-2' onSubmit={(e) => addToExpense(e)}>
             <input className=' px-4 py-2 m-2 border border-emerald-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-700' onChange={(e)=>{setItem(e.target.value)}} placeholder='Item' required/>
             <input type='number' step="any" className=' px-4 py-2 m-2 border border-emerald-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-700' onChange={(e)=>{setCost(Number(e.target.value))}} placeholder='Cost'/>
-            <input type='date' value={sdate} className=' px-4 py-2 m-2 border border-emerald-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-700'
+            <input type='date' value={sdate} className=' px-4 py-2 m-2 col-span-2 sm:col-span-1 border border-emerald-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-700'
             onChange = {(e) => {setSDate(e.target.value)}}/>
-            
-            <table className="table-auto select-none my-4 ml-2 border-2 col-span-3 sm:col-span-2 border-amber-500 min-w-[100px]">
+            <table className="table-auto select-none my-4 ml-2 border-2 col-span-2 border-amber-500 min-w-[100px]">
               <thead>
                 <tr className='text-center'>
                   <th className=" px-6 py-2">Details</th>
