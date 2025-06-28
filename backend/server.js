@@ -368,4 +368,4 @@ app.delete("/api/deleteLatestVariableExpense", async(req,res)=>{
 })
 
 const port = process.env.PORT || 5000
-app.listen(port,()=>{console.log(`port ${port} opened for server`)})
+app.listen(port,'0.0.0.0',()=>{console.log(`port ${port} opened for server`)})
