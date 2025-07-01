@@ -69,7 +69,7 @@ const Login = () => {
             <div className=" w-screen h-screen flex flex-col justify-center items-center">
             <div className="rounded-2xl p-4 m-2 sm:w-1/2 lg:w-1/5 border-2" style={{backgroundColor : 'var(--background)', borderColor:'var(--foreground)'}}>
                 <h1 className=" text-center p-2">Welcome to <b className=" text-emerald-600">Chillar</b></h1>
-                <form className="flex flex-col items-center p-2" onSubmit={(e) => {checkLogin(e)}}>
+                <form className="flex flex-col p-2" onSubmit={(e) => {checkLogin(e)}}>
                     <label htmlFor="username" className="my-2 font-mono">Username:</label>
                     <input id="username" type="text" className=" rounded-sm ring-1 ring-amber-500 p-1 outline-none focus-within:ring-green-600" onChange={(e) =>{setUsername(e.target.value)}} required/>
                     <label htmlFor="password" className="my-2 font-mono">Password:</label>
