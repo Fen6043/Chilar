@@ -68,6 +68,7 @@ const Homepage = () => {
       monthlyFixedBudget = fixedBudgetResponse.data?.totalfixedBudget;
 
       // Get variable expense
+      console.log(`${apiLoc}api/getVariableExpense/${today.toUTCString()}`)
       const variableExpenseResponse = await axios.get(`${apiLoc}api/getVariableExpense/${today.toUTCString()}`,{withCredentials:true});
       dailyVariableExpense = variableExpenseResponse.data?.dailyVariableExpense;
       monthlyVariableExpense = variableExpenseResponse.data?.monthlyVariableExpense;
