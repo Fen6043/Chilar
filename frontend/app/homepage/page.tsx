@@ -73,6 +73,8 @@ const Homepage = () => {
       dailyVariableExpense = variableExpenseResponse.data?.dailyVariableExpense;
       monthlyVariableExpense = variableExpenseResponse.data?.monthlyVariableExpense;
 
+      console.log(variableExpenseResponse)
+
       setDailyVariableExpense(dailyVariableExpense);
       setMontlyVariableExpense(monthlyVariableExpense);
 
