@@ -35,6 +35,10 @@ mongoose.connect(process.env.MONGO_URI)
 
 app.use("/api/auth",authRouter)
 
+app.get("/api/ping",(req,res)=>{
+    res.send('server awake')
+})
+
 app.get("/api/getIncome",async(req,res) => {
     try {
         const token = req.cookies?.chillarToken;

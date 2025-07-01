@@ -5,17 +5,31 @@ import { useRouter } from "next/navigation"
 import { FormEvent, useEffect, useState } from "react"
 
 const Login = () => {
+  
     const apiLoc = process.env.NEXT_PUBLIC_API_LOC
     const router = useRouter()
+    const [isServerAwake,setIsServerAwake] = useState(false)
     const [username,setUsername] = useState<string>("")
     const [password,setPassword] = useState<string>("")
     const [errormessage,setErrormessage] = useState<string>("")
 
+    const pingAPI = async() =>{
+      try{
+        await axios.get(`${apiLoc}api/ping`,{timeout:10000})
+        setIsServerAwake(true)
+        verifyMe()
+      }
+      catch(err){
+        console.log(err)
+        setTimeout(pingAPI,2000)
+      }
+    }
+
     const verifyMe = async() =>{
-        //console.log(apiLoc)
+        console.log(apiLoc)
         await axios.get(apiLoc+'api/auth/me',{withCredentials:true})
         .then((response)=>{
-            //console.log(response)
+            console.log(response)
             if(response.status === 200)
                 router.push("/homepage")
         })
@@ -23,7 +37,7 @@ const Login = () => {
     }
 
     useEffect(()=>{
-        verifyMe()
+        pingAPI()
     },[])
 
     const checkLogin = async(e:FormEvent<HTMLFormElement>) =>{
@@ -48,7 +62,9 @@ const Login = () => {
     }
 
     return(
-        <div className=" w-screen h-screen flex flex-col justify-center items-center">
+        <>
+        {isServerAwake?(
+            <div className=" w-screen h-screen flex flex-col justify-center items-center">
             <div className="rounded-2xl p-4 m-2 sm:w-1/2 lg:w-1/5 border-2" style={{backgroundColor : 'var(--background)', borderColor:'var(--foreground)'}}>
                 <h1 className=" text-center p-2">Welcome to <b className=" text-emerald-600">Chillar</b></h1>
                 <form className="flex flex-col item p-2" onSubmit={(e) => {checkLogin(e)}}>
@@ -63,7 +79,10 @@ const Login = () => {
                     </div>
                 </form>
             </div>
-        </div>
+            </div>
+        ):(<h1>Loading...</h1>)}
+        </>
+        
     )
 }
 
