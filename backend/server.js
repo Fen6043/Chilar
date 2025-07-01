@@ -145,7 +145,7 @@ app.get("/api/getVariableExpense/:date", async(req,res) => {
         const user = JWT.verifyToken(token)
         const today = new Date(req.params.date)
         //const stoday = new Date(today.getFullYear(),today.getMonth(),today.getDate())
-        //console.log(today,req.params.date)
+        console.log(today,req.params.date)
         const firstday = new Date(today.getFullYear(),today.getMonth(),1)
         const lastday = new Date(today.getFullYear(),today.getMonth()+1,0,23, 59, 59, 999)
         const monthlyExpense = await VariableExpense.aggregate([
