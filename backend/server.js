@@ -146,7 +146,7 @@ app.get("/api/getVariableExpense/:today/:firstday/:lastday", async(req,res) => {
         const today = new Date(req.params.today)
         const firstday = new Date(req.params.firstday)
         const lastday = new Date(req.params.lastday)
-        console.log(today,req.params.date)
+        console.log(today,req.params.today)
         console.log(firstday,lastday)
         const monthlyExpense = await VariableExpense.aggregate([
             {
