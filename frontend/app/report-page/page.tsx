@@ -152,8 +152,8 @@ const Report = () => {
                       <div className='bg-cyan-800 p-1 flex justify-between'>
                         <div className='font-mono text-lg p-1'>{`${month} ${year}`}</div>
                         <div className=' flex'>
-                          <div className='bg-green-800 rounded-2xl p-1 px-2 text-sm sm:text-lg mx-2'><u><b>Monthly Budget </b>{`- ${totalBudget}`}</u></div>
-                          <div className='bg-rose-800 rounded-2xl p-1 px-2 text-sm sm:text-lg'><u><b>Total Expense </b>{`- ${totalExpense}`}</u></div>
+                          <div className='bg-green-800 rounded-2xl p-1 px-2 text-sm sm:text-lg mx-2'><u><b>Monthly Budget </b>{`- ${totalBudget.toFixed(2)}`}</u></div>
+                          <div className='bg-rose-800 rounded-2xl p-1 px-2 text-sm sm:text-lg'><u><b>Total Expense </b>{`- ${totalExpense.toFixed(2)}`}</u></div>
                         </div>
                       </div>)}
                     {displayMonth && (
