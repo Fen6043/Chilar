@@ -139,15 +139,14 @@ app.get("/api/getBudgetOftheMonth",async(req,res) => {
     }
 })
 
-app.get("/api/getVariableExpense/:date", async(req,res) => {
+app.get("/api/getVariableExpense/:today/:firstday/:lastday", async(req,res) => {
     try {
         const token = req.cookies.chillarToken
         const user = JWT.verifyToken(token)
-        const today = new Date(req.params.date)
-        //const stoday = new Date(today.getFullYear(),today.getMonth(),today.getDate())
+        const today = new Date(req.params.today)
+        const firstday = new Date(req.params.firstday)
+        const lastday = new Date(req.params.lastday)
         console.log(today,req.params.date)
-        const firstday = new Date(today.getFullYear(),today.getMonth(),1)
-        const lastday = new Date(today.getFullYear(),today.getMonth()+1,0,23, 59, 59, 999)
         console.log(firstday,lastday)
         const monthlyExpense = await VariableExpense.aggregate([
             {

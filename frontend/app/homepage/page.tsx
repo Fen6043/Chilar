@@ -26,6 +26,7 @@ const Homepage = () => {
   const [cost, setCost] = useState(0)
   const today = new Date();
   today.setHours(0,0,0,0)
+  const firstday = new Date(today.getFullYear(),today.getMonth(),1)
   const lastday = new Date(today.getFullYear(),today.getMonth()+1,0,23,59,59,999)
   const [modal,setModal] = useState(false)
 
@@ -69,7 +70,7 @@ const Homepage = () => {
 
       // Get variable expense
       console.log(`${apiLoc}api/getVariableExpense/${today.toUTCString()}`)
-      const variableExpenseResponse = await axios.get(`${apiLoc}api/getVariableExpense/${today.toUTCString()}`,{withCredentials:true});
+      const variableExpenseResponse = await axios.get(`${apiLoc}api/getVariableExpense/${today.toUTCString()}/${firstday.toUTCString()}/${lastday.toUTCString()}`,{withCredentials:true});
       dailyVariableExpense = variableExpenseResponse.data?.dailyVariableExpense;
       monthlyVariableExpense = variableExpenseResponse.data?.monthlyVariableExpense;
 
