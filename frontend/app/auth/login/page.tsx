@@ -1,16 +1,16 @@
 'use client'
+import Loading from "@/app/components/Loading"
 import axios from "axios"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { FormEvent, useEffect, useState } from "react"
-import Lottie from "lottie-react"
-import moneyAnimation from "@/public/assets/moneyAnimation.json"
+
 
 const Login = () => {
   
     const apiLoc = process.env.NEXT_PUBLIC_API_LOC
     const router = useRouter()
-    const [isServerAwake,setIsServerAwake] = useState(false)
+    const [isServerAsleep,setIsServerAsleep] = useState(true)
     const [username,setUsername] = useState<string>("")
     const [password,setPassword] = useState<string>("")
     const [errormessage,setErrormessage] = useState<string>("")
@@ -18,7 +18,7 @@ const Login = () => {
     const pingAPI = async() =>{
       try{
         await axios.get(`${apiLoc}api/ping`,{timeout:10000})
-        setIsServerAwake(true)
+        setIsServerAsleep(false)
         verifyMe()
       }
       catch(err){
@@ -65,7 +65,9 @@ const Login = () => {
 
     return(
         <>
-        {isServerAwake?(
+        {isServerAsleep?(
+            <Loading/>
+        ):(
             <div className=" w-screen h-screen flex flex-col justify-center items-center">
             <div className="rounded-2xl p-4 m-2 sm:w-1/2 lg:w-1/5 border-2" style={{backgroundColor : 'var(--background)', borderColor:'var(--foreground)'}}>
                 <h1 className=" text-center p-2">Welcome to <b className=" text-emerald-600">Chillar</b></h1>
@@ -81,11 +83,6 @@ const Login = () => {
                     </div>
                 </form>
             </div>
-            </div>
-        ):(
-            <div className=" flex">
-                <Lottie animationData={moneyAnimation} loop={true} className="w-screen h-screen"/>
-                <h1 className=" fixed left-3/4 bottom-0 font-mono text-amber-500 text-2xl">Loading...</h1>
             </div>
         )}
         </>
