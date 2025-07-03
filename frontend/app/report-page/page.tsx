@@ -106,6 +106,12 @@ const Report = () => {
         return Sum;
     }
 
+    const submitReportForm = (e : React.FormEvent<HTMLFormElement>) =>{
+      e.preventDefault();
+      getExpenseDetail();
+      getBudgetofMonth();
+    }
+
     if(loading){
       return(
         <div></div>
@@ -116,7 +122,7 @@ const Report = () => {
       <div>
           <Toolbar/>
           <div className=' flex justify-center p-2 mb-2 select-none'>
-            <form className=' flex flex-col sm:flex-row' onSubmit={(e) => {e.preventDefault();getExpenseDetail();getBudgetofMonth()}}>
+            <form className=' flex flex-col sm:flex-row' onSubmit={(e) => {submitReportForm(e)}}>
               <label htmlFor="from" className='p-2 font-mono'>From:</label>
               <input type='date' id='from' className=' border border-amber-500 rounded-xl p-2 mr-2'
                 onChange={(e) => {setDate(e,"StartDate")}} required/>
@@ -152,8 +158,8 @@ const Report = () => {
                       <div className='bg-cyan-800 p-1 flex justify-between'>
                         <div className='font-mono text-lg p-1'>{`${month} ${year}`}</div>
                         <div className=' flex'>
-                          <div className='bg-green-800 rounded-2xl p-1 px-2 text-sm sm:text-lg mx-2'><u><b>Monthly Budget </b>{`- ${totalBudget.toFixed(2)}`}</u></div>
-                          <div className='bg-rose-800 rounded-2xl p-1 px-2 text-sm sm:text-lg'><u><b>Total Expense </b>{`- ${totalExpense.toFixed(2)}`}</u></div>
+                          <div className='bg-green-800 rounded-2xl p-1 px-2 text-sm sm:text-lg mx-2'><u><b>Monthly Budget </b>{`- ${totalBudget?.toFixed(2)}`}</u></div>
+                          <div className='bg-rose-800 rounded-2xl p-1 px-2 text-sm sm:text-lg'><u><b>Total Expense </b>{`- ${totalExpense?.toFixed(2)}`}</u></div>
                         </div>
                       </div>)}
                     {displayMonth && (
