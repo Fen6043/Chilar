@@ -45,6 +45,10 @@ const Budget = () => {
       .then(()=>{
           //console.log(response)
           setLoading(false)
+          getIncomedata()
+          getExpensedata()
+          const getItem = localStorage.getItem("isBudgetSet")
+          setisBudgetNotSet(!!getItem)
       })
       .catch((err) =>{
         console.log(err)
@@ -54,10 +58,6 @@ const Budget = () => {
 
     useEffect(()=>{
         verifyMe()
-        getIncomedata()
-        getExpensedata()
-        const getItem = localStorage.getItem("isBudgetSet")
-        setisBudgetNotSet(!!getItem)
     },[])
 
     //submit form
@@ -253,8 +253,6 @@ const Budget = () => {
             </table>
         </div>
     </div>
-
-    
     </>
   )
 }

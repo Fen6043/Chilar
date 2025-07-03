@@ -94,6 +94,8 @@ const Homepage = () => {
     .then(()=>{
         //console.log(response)
         setLoading(false)
+        getBudgetorExpense()
+        getExpenseDetail()
     })
     .catch((err) =>{
       console.log(err)
@@ -104,8 +106,6 @@ const Homepage = () => {
   useEffect(() => {
     //console.log("start")
     verifyMe()
-    getBudgetorExpense()
-    getExpenseDetail()
   },[])
 
   const addToExpense = async(event:React.FormEvent<HTMLFormElement>) => {
