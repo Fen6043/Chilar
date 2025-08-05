@@ -17,7 +17,7 @@ const Login = () => {
 
     const pingAPI = async() =>{
       try{
-        await axios.get(`${apiLoc}api/ping`,{timeout:10000})
+        await axios.get(`${apiLoc}api/ping`,{timeout:5000})
         setIsServerAsleep(false)
         verifyMe()
       }

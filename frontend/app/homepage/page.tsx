@@ -90,7 +90,7 @@ const Homepage = () => {
   }
 
   const verifyMe = async() =>{
-    await axios.get(apiLoc+'api/auth/me',{withCredentials:true})
+    await axios.get(apiLoc+'api/auth/me',{withCredentials:true, timeout:5000})
     .then(()=>{
         //console.log(response)
         setLoading(false)
@@ -217,8 +217,8 @@ const Homepage = () => {
     {modal && 
       <div className=' w-1/2 h-1/2 bg-green-800 opacity-100 z-30 fixed top-1/4 left-1/4 border border-amber-600 rounded-2xl flex flex-col justify-between items-center'>
         <Image src="/assets/Logo.png" alt="PropLogo" width={100} height={100}/>
-        <p className='text-amber-500 text-2xl font-mono p-4 m-1'><b className='text-amber-50'>Hi,</b> could you please verify the budget that should be set for this month</p>
-        <button className='bg-amber-600 p-2 relative bottom-4 rounded-2xl font-mono font-bold cursor-pointer' onClick={() => {router.push("/budget-page")}}>Take me there</button>
+        <p className='text-amber-500 text-lg sm:text-2xl font-mono p-4 m-1'><b className='text-amber-50'>Hi,</b> could you please verify the budget that should be set for this month</p>
+        <button className='bg-amber-600 p-2 text-sm sm:text-lg relative bottom-4 rounded-2xl font-mono font-bold cursor-pointer' onClick={() => {router.push("/budget-page")}}>Take me there</button>
       </div>
     }
     </>

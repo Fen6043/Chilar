@@ -22,7 +22,7 @@ const Report = () => {
     let yearRef = -1
 
     const verifyMe = async() =>{
-      await axios.get(apiLoc+'api/auth/me',{withCredentials:true})
+      await axios.get(apiLoc+'api/auth/me',{withCredentials:true, timeout:5000})
       .then(()=>{
           //console.log(response)
           setLoading(false)
