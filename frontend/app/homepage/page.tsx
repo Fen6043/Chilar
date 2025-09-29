@@ -18,6 +18,7 @@ const Homepage = () => {
   const router = useRouter()
   const [loading,setLoading] = useState(true)
   const [activeTab,setActiveTab] = useState<string>("Daily")
+  const [activeModalTab,setActiveModalTab] = useState<string>("Debit")
   const [monthlyFixedBudget,setMonthlyFixedBudget] = useState(0);
   const [dailyFixedBudget,setDailyFixedBudget] = useState(0);
   const [monthlyVariableExpense,setMontlyVariableExpense] = useState(0)
@@ -28,7 +29,8 @@ const Homepage = () => {
   today.setHours(0,0,0,0)
   const firstday = new Date(today.getFullYear(),today.getMonth(),1)
   const lastday = new Date(today.getFullYear(),today.getMonth()+1,0,23,59,59,999)
-  const [modal,setModal] = useState(false)
+  const [budgetmodal,setBudgetModal] = useState(false)
+  const [addExpenseModal,setAddExpenseModal] = useState(false)
 
   const formatDate = (date: Date) => {
     const month = (date.getMonth() + 1).toString().padStart(2,'0')
@@ -57,7 +59,7 @@ const Homepage = () => {
       //console.log(dateString.split(" ")[1],dateString.split(" ")[3])
       const isBudgetSet = response.data;
 
-      setModal(!isBudgetSet);
+      setBudgetModal(!isBudgetSet);
 
       if (!isBudgetSet) {
         localStorage.setItem("isBudgetSet","No")
@@ -84,6 +86,8 @@ const Homepage = () => {
 
       setDailyFixedBudget(dailyFixedBudget);
       setMonthlyFixedBudget(monthlyFixedBudget);
+      console.log(monthlyFixedBudget + " "+ monthlyVariableExpense + " " + dailyVariableExpense + " " + daysRemaining)
+      console.log(dailyFixedBudget + " " + monthlyFixedBudget)
     } catch (error) {
       console.error("An error occurred in getBudgetorExpense:", error);
     }
@@ -114,7 +118,7 @@ const Homepage = () => {
     //const testTime = new Date("2025-05-27")
     //console.log("testtime - ",testTime.toISOString())
     //console.log(sendlocalDate)
-    const temp = {item:item,cost:cost,date:localDate.toUTCString()}
+    const temp = {item:item,cost:cost,type:false,date:localDate.toUTCString()}
     await axios.post(apiLoc+"api/addvariableExpense",temp,{withCredentials:true})
     //.then((response) => {console.log(response.data)})
     .catch((error) => {console.log("error occured while posting variableExpense",error)})
@@ -175,16 +179,15 @@ const Homepage = () => {
       
       <div className=' w-full items-center justify-center flex'>
         <div className=' border border-amber-500 mt-6 p-1 rounded-xl' style={{backgroundColor: 'var(--background)'}}>
-          <form className=' justify-center grid grid-cols-2 sm:grid-cols-3 gap-x-2' onSubmit={(e) => addToExpense(e)}>
-            <input className=' px-4 py-2 m-2 border border-emerald-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-700' onChange={(e)=>{setItem(e.target.value)}} placeholder='Item' required/>
-            <input type='number' step="any" className=' px-4 py-2 m-2 border border-emerald-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-700' onChange={(e)=>{setCost(Number(e.target.value))}} placeholder='Cost'/>
-            <input type='date' value={sdate} className=' px-4 py-2 m-2 col-span-2 sm:col-span-1 border border-emerald-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-700'
-            onChange = {(e) => {setSDate(e.target.value)}}/>
-            <table className="table-auto select-none my-4 ml-2 border-2 col-span-2 border-amber-500 min-w-[100px]">
+          <div className=' flex justify-center items-center'>
+            <button type='button' className=' h-10 w-1/2 mr-2 bg-amber-500 rounded-full cursor-pointer select-none hover:bg-amber-700 font-bold mt-2' onClick={()=>{setAddExpenseModal(true)}}>Add Expense</button>
+            <button type='reset' className=' h-10 w-1/2 mr-2 bg-rose-500 rounded-full cursor-pointer select-none hover:bg-rose-700 font-bold mt-2' onClick={undoLatestEntry}>Undo</button>
+          </div>
+          <table className="table-auto select-none my-4 mx-2 border-2 border-amber-500 min-w-[100px]">
               <thead>
                 <tr className='text-center'>
                   <th className=" px-6 py-2">Details</th>
-                  <th className=" px-4 py-2">Expense</th>
+                  <th className=" px-4 py-2 flex justify-center"><h1 className=' text-emerald-500'>Credit</h1><h1>/</h1><h1 className=' text-red-500'>Debit</h1></th>
                   <th className=" px-4 py-2">Date</th>
                 </tr>
               </thead>
@@ -202,23 +205,35 @@ const Homepage = () => {
 
               </tbody>
             </table>
-
-            <div className='w-full col-span-3 sm:col-span-1 my-4 flex flex-col items-center'>
-                <button type='submit' className=' h-10 w-1/2 mr-2 bg-amber-500 rounded-full cursor-pointer select-none hover:bg-amber-700 font-bold'>Submit</button>
-                <button type='reset' className=' h-10 w-1/2 mr-2 bg-rose-500 rounded-full cursor-pointer select-none hover:bg-rose-700 font-bold mt-2' onClick={undoLatestEntry}>Undo</button>
-            </div>
-          </form>
         </div>
       </div>
     </div>
     
     
-    {modal && <div className=' bg-stone-900 opacity-80 fixed top-0 left-0 w-screen h-screen z-20'/>}
-    {modal && 
+    {budgetmodal || addExpenseModal  && <div className=' bg-stone-900 opacity-80 fixed top-0 left-0 w-screen h-screen z-20' onClick={()=>{setAddExpenseModal(false)}}/>}
+    {budgetmodal && 
       <div className=' w-1/2 h-1/2 bg-green-800 opacity-100 z-30 fixed top-1/4 left-1/4 border border-amber-600 rounded-2xl flex flex-col justify-between items-center'>
         <Image src="/assets/Logo.png" alt="PropLogo" width={100} height={100}/>
         <p className='text-amber-500 text-lg sm:text-2xl font-mono p-4 m-1'><b className='text-amber-50'>Hi,</b> could you please verify the budget that should be set for this month</p>
         <button className='bg-amber-600 p-2 text-sm sm:text-lg relative bottom-4 rounded-2xl font-mono font-bold cursor-pointer' onClick={() => {router.push("/budget-page")}}>Take me there</button>
+      </div>
+    }
+    {
+      addExpenseModal &&
+      <div className= {`w-fit sm:w-1/2 h-1/2 opacity-100 z-30 fixed top-1/4 left-1/8 sm:left-1/4 border border-amber-600 rounded-2xl flex justify-center items-center transition-colors duration-400 ${activeModalTab === "Debit"?' bg-rose-800':'bg-emerald-800'}`}>
+        <form className=' flex flex-col justify-center items-center' onSubmit={(e) => addToExpense(e)}>
+          <div className=' flex'>
+            <div className={`absolute rounded-2xl m-2 bg-amber-500 w-[120px] h-[44px] border-2 transition-transform duration-200 ${activeModalTab === "Debit"?" translate-x-0":" translate-x-[136px]"}`}/>
+            <button type='button' className=' p-2 px-4 rounded-2xl m-2 min-w-[120px] h-[44px] text-center z-10 border-2 cursor-pointer font-mono' onClick={()=>{setActiveModalTab("Debit")}}>Debit</button>
+            <button type='button' className=' p-2 px-4 rounded-2xl m-2 min-w-[120px] h-[44px] text-center z-10 border-2 cursor-pointer font-mono' onClick={()=>{setActiveModalTab("Credit")}}>Credit</button>
+          </div>
+          <input className=' bg-amber-600 px-4 py-2 m-2 border border-emerald-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-700' onChange={(e)=>{setItem(e.target.value)}} placeholder='Item' required/>
+          <input type='number' step="any" className=' bg-amber-600 px-4 py-2 m-2 border border-emerald-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-700' onChange={(e)=>{setCost(Number(e.target.value))}} placeholder='Cost'/>
+          <input type='date' value={sdate} className=' bg-amber-600 px-4 py-2 m-2 col-span-2 sm:col-span-1 border border-emerald-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-700'
+          onChange = {(e) => {setSDate(e.target.value)}}/>
+          <button type='submit' className=' h-10 w-1/2 m-2 bg-amber-500 rounded-full cursor-pointer select-none hover:bg-amber-700 font-bold'>Submit</button>
+          <h1 className=' text-amber-600 text-xl absolute top-0 right-5 cursor-pointer' onClick={()=>{setAddExpenseModal(false)}}>x</h1>
+        </form>
       </div>
     }
     </>

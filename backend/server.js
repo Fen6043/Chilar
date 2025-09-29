@@ -334,7 +334,7 @@ app.post("/api/addvariableExpense", async(req,res) => {
     try {
         const token = req.cookies.chillarToken
         const user = JWT.verifyToken(token)
-        const newVarExpense = new VariableExpense({userId:user.id,item:req.body.item, cost:req.body.cost, date:req.body.date})
+        const newVarExpense = new VariableExpense({userId:user.id,item:req.body.item, cost:req.body.cost, type:req.body.type, date:req.body.date})
         await newVarExpense.save();
         res.status(200).json("Successfully added")
     } catch (error) {
